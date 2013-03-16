@@ -1,0 +1,28 @@
+{
+    "name": "color",
+    "title": "Sonic Animator",
+    "description": "jQuery plugin for color manipulation and animation support.",
+    "keywords": [
+        "ajax",
+        "animation",
+        "html5"
+    ],
+    "version": "0.1.2",
+    "author": {
+        "name": "Donald Atkinson (aka Fuzzical Logic)",
+        "email": "fuzzicallogic@gmail.com",
+        "url": "https://github.com/FuzzicalLogic/"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/FuzzicalLogic/Sonic-jQ-Plugin/blob/2.1.2/MIT-LICENSE.txt"
+        }
+    ],
+    "bugs": "https://github.com/FuzzicalLogic/Sonic-jQ-Plugin/issues",
+    "homepage": "https://github.com/jquery/jquery-color",
+    "docs": "https://github.com/jquery/jquery-color",
+    "dependencies": {
+        "jquery": ">=1.9"
+    }
+}
