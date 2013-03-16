@@ -24,19 +24,19 @@ The road to completion requires significant changes to the way the original Soni
 
 * jQuery object
 
-    $.Sonic({options}).appendTo('selector').play();     // Currently nonfunctional.
-    $.Sonic('play', {options});                         // Currently nonfunctional.
+    `$.Sonic({options}).appendTo('selector').play();     // Currently nonfunctional.`
+    `$.Sonic('play', {options});                         // Currently nonfunctional.`
     
 * jQuery Selections
 
-    $('selector').Sonic({options}).Sonic('play');       // Currently nonfunctional.
-    $('selector').Sonic({options}).play();              // Currently nonfunctional.
-    $('selector').add($.Sonic({options})).play();       // Currently nonfunctional.
-    $('selector').prepend($.Sonic('play',{options}));   // Currently nonfunctional.
+    `$('selector').Sonic({options}).Sonic('play');       // Currently nonfunctional.`
+    `$('selector').Sonic({options}).play();              // Currently nonfunctional.`
+    `$('selector').add($.Sonic({options})).play();       // Currently nonfunctional.`
+    `$('selector').prepend($.Sonic('play',{options}));   // Currently nonfunctional.`
 
 * Non-jQuery
 
-    domNode.appendChild(Sonic({options}).play());
+    `domNode.appendChild(Sonic({options}).play());`
     
 #### 2. FPS/StepsPerFrame to FPS/Length
 
