@@ -4,7 +4,11 @@ Sonic(jQ) uses the HTML5 Canvas to allow dynamic, fluid loading animations witho
 
 Sonc(jQ) is a complete rework of [Sonic.js](https://github.com/padolsey/Sonic). The primary goal of this redesign was to take advantage of the usability of the jQuery framework without making it a dependency. Secondary goals included providing more consistent expected behavior and reducing the overall amount of code required to begin using Sonic as a whole.
 
-#### Current Usage (with jQuery)
+### Usage
+
+Currently, the plugin requires jQuery (tested with 1.9+). 
+
+#### jQuery Commands
 
     $('css').Sonic({options})
     
@@ -14,13 +18,13 @@ Create a loading animation and play immediately.
 
 This will create, or retrieve a canvas object (if one is not already provided) within each item in the $() jQuery. For chainability, you may then .play() or .stop() the animation. 
 
-#### Usage (without jQuery)
+#### Non-jQuery Commands _(in development)_
 
 If jQuery is not included, Sonic(jQ) works within its own Sonic namespace and works similarly to [Sonic.js](https://github.com/padolsey/Sonic). There are some significant differences, however, to improve usability.
 
-* All options are optional now
-
 ### Sonic(jQ) Options
+
+All options are optional and Sonic(jQ) may be run without typing a single line. It should be mentioned that it will be a very boring animation. Options should be in JSON format. In order to make the coolest animations, it is best to get familiar with the conifiguration options and [objects](#sonicjq-objects) that can be set. 
 
 #### Canvas Style/Formatting Options
 
@@ -44,17 +48,9 @@ Sets the inline style of the Canvas.
 
 #### Drawing Options
 
-    fillColor (default:'#000000')
+    color (default:'#000000')
 Sets the drawing color (in fill mode) for the canvas.
 
-    strokeColor (default:'#000000')
-Sets the drawing color (in stroke mode) for the canvas.
-
-    trailLength (default:500)
-Sets the length (in milliseconds) of trail points in the animation.
-
-    trailPoints (default:5)
-Sets the distance between points in the animation.
 
 #### Animation Options
 
@@ -76,6 +72,114 @@ Sets the function for stepping through frames within the animation. See [Step Fu
     path (default:[ ['line', 1, 1, 1, 1] ])
 Sets the path for the animation. See the section [Animation Paths](#Animation Paths) *(soon Changing)*
 
+### Sonic(jQ) Objects
+
+#### Trail Objects
+
+A Trail Object may be placed in the [Sonic(jQ) Options](#sonicjq-options) or within a given [Point Object](#point-objects) in the `points` array. If placed in the Options, all points without a Trail Object will use the one in the Options. If no trail is desired, you may use the string 'none' (trail: 'none').
+
+##### Options
+
+* `length` - The amount of time (in msec) to follow the point
+* `points` - The number of points within the trail.
+
+##### Example
+
+    trail: {
+        length: 500,
+        points: 10
+    },
+    
+#### Point Objects
+
+These objects are placed into the `points` array, enabling each point to have their own configuration. This allows every point to be rendered in a completely different way. This even lends the ability for each point to follow their own path (or paths). All Point options, if omitted, will fallback to same named settings in the Global Options.
+
+##### Options
+
+* `type` - __(not yet implemented)__ `round` or `rect`. Only works with a standard path.
+* `size` - The size of the point. 
+* `color` - The color of the point in HTML hex notation. _(Ex: '#FFFFFF')_ 
+* `alpha` - The alpha of the point. 
+* `offset` - __(not yet implemented)__ offset for path calculation, in msec. 
+* `paths` - [Path Object](#path-objects), or an array of Path Objects. 
+* `trail` - [Trail Object](#trail-objects) definition.
+
+##### Example
+
+    points: [
+        {   
+            size: 4,
+            // Will use Global offset, if present
+            color: '#342FCD'
+            alpha: .5,
+            paths: function(data, ptP, ptTrail, pt) {
+                ... custom code
+            }
+            // Will use Global Trail, if present
+        },
+        {
+            size: 6,
+            offset: 125,
+            // Will use Global color, if present
+            // Will use Global alpha, if present
+            // Will use Global paths, if present
+            trail: {
+                length: 250,
+                points: 15
+            }
+        }
+    ],
+    
+#### Path Objects __(not yet implemented)__
+
+##### Options
+
+* `length` - The amount of time, in msec, the point will use this path.
+* `path` - A valid path array or custom [Path Function](#path-functions)
+
+### Advanced Usage
+
+#### Path Functions
+
+#### Step Functions
+
+Step Functions in Sonic(jQ) are significantly different from the sonic.js Step Functions. One major difference is that Step Functions are attached to the animation's total progress. In general, if using [multiple points](#point-objects), you consider using [Path Functions](#path-functions) instead. Below is the signature for a step function.
+
+    step: function(data, progress, trail) {
+        ... add code here
+    }
+
+* `data` is the [Options Object](#options)
+* `progress` _(.01 to 1.00)_ represents the percentage of the animation's completion (modified by the trail for convenience).
+* `trail` _(.01 to 1.00)_ represents the current percentage of the trail's completion.
+
+##### Drawing in a Step Function
+
+To draw during the step function, don't forget to grab the [Context2D](http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/) from the `data` argument. After you have the context, you may utilize the context's drawing methods to draw upon the canvas. It is important to note that `data` is the entire [Options Object](#options). Avoid setting any values here, but feel free to grab and use any values that it provides. 
+
+##### Example with Shrinking Trailpoints
+
+    step: function(data, progress, trail) {
+        var c2d = data.context;
+
+        var size;
+        if (data.size)
+            size = size * trail;
+        if (data.color)
+            c2d.fillStyle = data.color;
+            
+        c2d.beginPath();
+        c2d.fillArc(data.width * progress, data.height * progress, 0, 360);
+        c2d.closePath();
+    }
+    
+#### Trailing Points
+
+In Sonic(jQ), trails are handling almost automatically. Simply add a [Trail Object](#trail-objects) either to the Options or to a [Point Object](#point-objects).
+
+### Note: Differences from Sonic.js
+
+Sonic.js assumed and tracked a single point (and its trail points) along a single progression. In order to accomplish what Sonic(jQ) accomplishes naturally, one had to create a custom `step()` function that manually drew each additional point. In order to get the best use from Sonic(jQ), think of each point object as a sonic.js instance. While this does not accurately illustrate the differences, it should be sufficient for most situations. 
 
 ### Road Map for Development
 
@@ -98,18 +202,16 @@ The road to completion requires significant changes to the way the original Soni
 
     `domNode.appendChild(Sonic({options}).play());`
     
-#### 2. Multiple Particles
-
-Currently, Sonic keeps `points` as an array of "stops" for a given animation. Handling multiple points requires a special `step()` function. Additionally, Sonic assumes all `path`s run given a single animated point. In order to facilitate simpler use, this plugin will move to a `particle`s model:
-
-Each `particle` will have its own `path`, `fillcolor`, `strokecolor`, `alpha`, and `length`. For special function, each `particle` may also have its own `step()` function. 
-
-The above will necessitate changes to Sonic(jQ) in the following ways:
-
-The `step()` function will cycle through all `particle`s and run their `step()`s. Image Caching cannot occur without including all `particle`s. The options `fps` and `length` shall determine the overall imaging behavior. The `length` of a given particle will only be used to determine how the HTML Canvas will render it in its frames.
-    
 ### Completed Milestones
 
+* (3/17/2013) Added User Object
+    * Accessed in options.user
+* (3/17/2013) Added Point Object
+    * Support for distinct paths (falls back to step)
+    * Support for distinct trail object (falls back to global)
+    * Support for distinct size, color and alpha (falls back to global)
+* (3/17/2013) Added Trail Object
+    * Added default values
 * (3/16/2013) Changed/Optimized the way Trails are rendered.
     * `trailLength` is now measured in millseconds.
     * `trailPoints` is now the number of points along the trail.
