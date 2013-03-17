@@ -28,49 +28,24 @@ All options are optional and Sonic(jQ) may be run without typing a single line. 
 
 #### Canvas Style/Formatting Options
 
-    width (default:100)
-Sets the width of the Canvas.
-
-    height (default:100)
-Sets the height of the Canvas.
-
-    padding (default:0)
-Sets the padding of the Canvas.
-
-    cssClass (default:'Sonic')
-Sets the CSS Class(es) of the Canvas.
-
-    cssID (default:'')
-Sets the CSS ID of the Canvas. *(Ignored when creating multiple animations)*
-
-    style (default:'')
-Sets the inline style of the Canvas.
+* `width        (100)` - Sets the width of the Canvas.
+* `height       (100)` - Sets the height of the Canvas.
+* `padding        (0)` - Sets the padding of the Canvas.
+* `cssClass ('Sonic')` - Sets the CSS Class(es) of the Canvas.
+* `cssID         ('')` - Sets the CSS ID of the Canvas. *(Ignored when creating multiple animations)*
+* `style         ('')` - Sets the inline style of the Canvas.
 
 #### Drawing Options
 
-    color (default:'#000000')
-Sets the drawing color (in fill mode) for the canvas.
+* `color ('#000000')` - Sets the drawing color (in fill mode) for the canvas.
 
 
 #### Animation Options
 
-    fps (default:25)
-Sets the refresh rate for the animation.
-
-    length (default:1000)
-The length (in milliseconds) of the animation.
-
-    setup (default:empty)
-Sets the function that sets up the canvas before rendering a frame.
-
-    preStep (default:empty)
-Sets the function that runs before every `step()` is drawn.
-    
-    step (default:line)
-Sets the function for stepping through frames within the animation. See [Step Functions](#Step Functions) 
-
-    path (default:[ ['line', 1, 1, 1, 1] ])
-Sets the path for the animation. See the section [Animation Paths](#Animation Paths) *(soon Changing)*
+* `fps       (25)` - Sets the refresh rate for the animation.
+* `length  (1000)` - The length (in msec) of the animation.
+* `setup  (empty)` - Sets the function that sets up the canvas before rendering a frame.
+* `step   (empty)` - Sets the function for stepping through frames within the animation. See [Step Functions](#Step Functions) 
 
 ### Sonic(jQ) Objects
 
@@ -80,8 +55,8 @@ A Trail Object may be placed in the [Sonic(jQ) Options](#sonicjq-options) or wit
 
 ##### Options
 
-* `length` - The amount of time (in msec) to follow the point
-* `points` - The number of points within the trail.
+* `length (500)` - The amount of time (in msec) to follow the point
+* `points  (10)` - The number of points within the trail.
 
 ##### Example
 
@@ -97,12 +72,12 @@ These objects are placed into the `points` array, enabling each point to have th
 ##### Options
 
 * `type` - __(not yet implemented)__ `round` or `rect`. Only works with a standard path.
-* `size` - The size of the point. 
+* `size   (5)` - The size of the point. 
 * `color` - The color of the point in HTML hex notation. _(Ex: '#FFFFFF')_ 
-* `alpha` - The alpha of the point. 
-* `offset` - __(not yet implemented)__ offset for path calculation, in msec. 
-* `paths` - [Path Object](#path-objects), or an array of Path Objects. 
-* `trail` - [Trail Object](#trail-objects) definition.
+* `alpha  (1)` - The alpha of the point. 
+* `offset (0)` - __(not yet implemented)__ offset for path calculation, in msec. 
+* `paths     ` - [Path Object](#path-objects), or an array of Path Objects. 
+* `trail     ` - [Trail Object](#trail-objects) definition.
 
 ##### Example
 
@@ -168,10 +143,10 @@ Path Functions allow you to program a custom path for each and every point. Each
         ... add code here ...
     },
 
-* `data` is the [Options Object](#options)
+* `data    ` - the [Options Object](#options)
 * `progress` - the percentage (in decimal form) of the point's progress along the path (modified by the trail for convenience).
-* `pt` - The point object from the options.
-* `trail` - the percentage (in decimal form) of the trail's completion.
+* `pt      ` - The point object from the options.
+* `trail   ` - the percentage (in decimal form) of the trail's completion.
 
 ##### Drawing in a Path Function
 
@@ -185,7 +160,7 @@ Step Functions in Sonic(jQ) are significantly different from the sonic.js Step F
         ... add code here
     }
 
-* `data` - the [Options Object](#options)
+* `data    ` - the [Options Object](#options)
 * `progress` - the percentage of the animation's completion.
 
 ##### Drawing in a Step Function
