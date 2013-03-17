@@ -8,30 +8,35 @@
 /* Default values for all Sonic(jQ) objects 
    ---------------------------------------------------- */
     var defCanvas = {
-        width:0, height:0, padding:0,
-        fps:30, 
+        cache:[],
+        width:50, height:50, padding:0,
+        fps:40, 
         size:10,
-        alpha:1,
-        frames:[],
-        multiplier:1,
-        trailLength:500,
-        trailPoints:5,
-        points:[],
+        alpha:.9,
+        points:[
+            {    
+                
+            }
+        ],
         path:[ 
             ['line', 1, 1, 1, 1] 
         ],
         length:1000,
-        fillColor:"#FFF", strokeColor:"#FFF",
         setup:nil,
         teardown:nil,
         preStep:nil,
         domClass:"Sonic"
     };
     var defPoint = {
-        path:[
+        size: 10,
+        color:'#000000',
+        paths:[
             ['line', 1, 1, 1, 1]
-            ],
-        fillColor:"#FFF", strokeColor:"#FFF",
+        ]
+    };
+    var defTrail = {
+        length: 500,
+        points:15
     };
 
 
@@ -98,16 +103,19 @@
             var fps = data.fps,
                 len = data.length,
                 sec = 1e3,
-                nFrames = data.fps * (len / sec);
+                nFrames = fps * (len / sec);
             data.maxFrames = nFrames;
-        // Set flag
+        // Setup the animation
+            data.setup(data);
             data.isStopped = false;
         // Clear the timer, in case of multiple play()s
             if (data.timer)
                 clearInterval(data.timer);
         // Begin drawing
-
-            data.timer = setInterval(function() {draw(data);}, 1e3 / data.fps);    
+            data.timer = setInterval(
+                function() {    draw(data);    }, 
+                1e3 / fps
+            );    
         });
     };
     
@@ -122,96 +130,66 @@
     };
     
     var draw = function (data) 
-    {   var c2d = data.context;
-        if (!prep(data)) {
-            c2d.clearRect(0, 0, data.fullWidth, data.fullWidth);
-            c2d.putImageData(data.frames[data.frame], 0, 0)
-        }
-        nextFrame(data);
+    {   var f = data.frame,
+            max = data.maxFrames,
+            c2d = data.context,
+            cache = data.cache;
+    // Init frames
+        if (!f) data.frame = 0;
+    // Clear the image entirely
+        c2d.clearRect(0, 0, data.fullWidth, data.fullWidth);
+    // If frame is cached, draw immediately
+        if (f in cache)
+            c2d.putImageData(cache[f], 0, 0)
+    // Otherwise draw the frame manually
+        else data.cache[f] = drawFrame(data);
+        
+    // Increment the frame and store it.
+        if (++data.frame >= max) 
+            data.frame = 0;
     };
     
-    var setup = function(options) {
-        var e, t, s, o, u = options.path;
-        options.points = [];
-        for (var a = -1, f = u.length; ++a < f;) {
-            e = u[a].slice(1);
-            s = u[a][0];
-            if (s in r) for (var l = -1, c = e.length; ++l < c;) {
-                t = r[s][l];
-                o = e[l];
-                switch (t) {
-                    case n.RADIUS:
-                        o *= options.multiplier;
-                        break;
-                    case n.DIM:
-                        o *= options.multiplier;
-                        o += options.padding;
-                        break;
-                    case n.DEGREE:
-                        o *= Math.PI / 180;
-                        break
-                }
-                e[l] = o
-            }
-            e.unshift(0);
-            for (var h, p = options.pointDistance, d = p; d <= 1; d += p) {
-                d = Math.round(d * 1 / p) / (1 / p);
-                e[0] = d;
-                h = i[s].apply(null, e);
-                options.points.push({
-                    x: h[0],
-                    y: h[1],
-                    progress: d
-                })
-            }
-        }
-    };
-    var prep = function (options) 
+    var drawFrame = function (options) 
     {   var f = options.frame,
-            c2d = options.context,
-            cache = options.frames;
+            c2d = options.context;
     // Image Properties
         var w = options.fullWidth, 
             h = options.fullHeight;
-    // Check our image Cache
-        if (f in cache) 
-            return;
-        c2d.clearRect(0, 0, w, h);
-        var t = options.points,
-            n = t.length,
-            r = options.pointDistance,
-            i, s, o;
-            options.setup(options);
-
+            
         c2d.globalAlpha = options.alpha;
-        
-        
-        
-        var ptDistance = (options.trailLength/options.length) / options.trailPoints;
+        var pts = 0,
+            ptDistance = 0;
+        if (options.trail)
+        {   pts = options.trail.points;
+            ptDistance = (options.trail.length / options.length) / pts;
+        }
         var curProgress = f / options.maxFrames;
-        var ptProgress, ptAlpha, ptSize;
-        for (var pt = 0, a = options.trailPoints; ++pt <= a  && !options.isStopped;)
+        var ptProgress, modTrail;
+        $.each(options.points, function() {
+        for (var pt = 0, a = pts + 1; ++pt <= a  && !options.isStopped;)
         {   ptProgress = curProgress - ((a - pt) * ptDistance);
-            ptAlpha = (pt / a) * options.alpha;
-            ptSize = (pt / a) * options.size;
-            c2d.globalAlpha = ptAlpha;
-            //options.preStep(i, 0, o);
-            c2d.fillStyle = options.fillColor;
-            c2d.strokeStyle = options.strokeColor;
-            options.stepMethod(options, ptProgress, ptSize, ptAlpha);
+            modTrail = (pt / a);
+            c2d.globalAlpha = (pt / a) * options.alpha;
+            if (this.color)
+            {   c2d.fillStyle = this.color;
+                c2d.strokeStyle = this.color;
+            }
+        // Default to global color
+            else
+            {   c2d.fillStyle = options.color;
+                c2d.fillStyle = options.color;
+            }
+            //options.preStep();
+            if (this.paths)
+                this.paths(options, ptProgress, modTrail, this);
+        // Default to global Step() function
+            else
+                options.step(options,ptProgress, modTrail, this);
         }
-     
-        options.teardown();
-     // Cache the image
-        cache[f] = c2d.getImageData(0, 0, w, h);
-        return true;
-    };
-    
-    var nextFrame = function (options) {
-        var max = options.maxFrames;
-        if (++options.frame >= max) {
-            options.frame = 0;
-        }
+        });
+        //options.teardown();
+    // Cache the image
+        return c2d.getImageData(0, 0, w, h);
     };
     
 /* jQuery Methods
@@ -225,6 +203,8 @@
                 link = jQFind(this, true);
         // Default Settings... so that Sonic always works
             options = $.extend(defCanvas,options);
+            if (options.trail)
+                options.trail = $.extend(defTrail,options.trail);
         // Add the new links
             link.play = jQPlay;
             link.stop = jQStop;
@@ -237,21 +217,19 @@
                     data = $me.data(namespace);
                 
             // If the plugin hasn't been initialized yet
-                if (!data) {
-                // Clone options and attach to canvas
+                if (!data) 
+                {//Clone options and attach to canvas
                     $me.data(namespace, $.extend({}, options));
                 // Save Keystrokes
                     data = $me.data(namespace);
-                    data.stepMethod = typeof data.step == "string" ? s[data.step] : data.step || s.square;
+                    if (typeof data.step != 'function')
+                        data.step = getPathStep(data.path);
                     data.context = me.getContext("2d");
                     data.fullWidth = data.width + 2 * data.padding;
                     data.fullHeight = data.height + 2 * data.padding;
                     data.play = function(){};
-                    data.imageData = [];
                     $me.attr('height', data.fullHeight);
                     $me.attr('width', data.fullWidth);
-                    data.frame = 0;
-                    setup(data);
                 }
             });
         },
@@ -316,5 +294,10 @@
             else list.push(this);
         });
         return list;
+    };
+    
+    var getPathStep = function(path)
+    {
+        
     };
 }(jQuery));
