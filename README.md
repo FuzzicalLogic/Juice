@@ -7,6 +7,10 @@ Sonc(jQ) is a complete rework of [Sonic.js](https://github.com/padolsey/Sonic). 
 #### Current Usage (with jQuery)
 
     $('css').Sonic({options})
+    
+Create a loading animation and play immediately.
+
+    $('selector').Sonic({options}).play();
 
 This will create, or retrieve a canvas object (if one is not already provided) within each item in the $() jQuery. For chainability, you may then .play() or .stop() the animation. 
 
@@ -15,6 +19,63 @@ This will create, or retrieve a canvas object (if one is not already provided) w
 If jQuery is not included, Sonic(jQ) works within its own Sonic namespace and works similarly to [Sonic.js](https://github.com/padolsey/Sonic). There are some significant differences, however, to improve usability.
 
 * All options are optional now
+
+### Sonic(jQ) Options
+
+#### Canvas Style/Formatting Options
+
+    width (default:100)
+Sets the width of the Canvas.
+
+    height (default:100)
+Sets the height of the Canvas.
+
+    padding (default:0)
+Sets the padding of the Canvas.
+
+    cssClass (default:'Sonic')
+Sets the CSS Class(es) of the Canvas.
+
+    cssID (default:'')
+Sets the CSS ID of the Canvas. *(Ignored when creating multiple animations)*
+
+    style (default:'')
+Sets the inline style of the Canvas.
+
+#### Drawing Options
+
+    fillColor (default:'#000000')
+Sets the drawing color (in fill mode) for the canvas.
+
+    strokeColor (default:'#000000')
+Sets the drawing color (in stroke mode) for the canvas.
+
+    pointDistance (default:1)
+Sets the distance between points in the animation.
+
+    trailLength (default:1)
+Sets the length of the trail behind of points in the animation.
+
+#### Animation Options
+
+    fps (default:25)
+Sets the refresh rate for the animation.
+
+    stepsPerFrame (default:1)
+Sets the number of times the `step()` function is run per frame. *(soon obsolete)*
+
+    setup (default:empty)
+Sets the function that sets up the canvas before rendering a frame.
+
+    preStep (default:empty)
+Sets the funstion that runs before every `step()` is drawn.
+    
+    step (default:line)
+Sets the function for stepping through frames within the animation. See [Step Functions](#Step Functions) *(soon Changing)*
+
+    path (default:[ ['line', 1, 1, 1, 1] ])
+Sets the path for the animation. See the section [Animation Paths](#Animation Paths) *(soon Changing)*
+
 
 ### Road Map for Development
 
@@ -30,7 +91,6 @@ The road to completion requires significant changes to the way the original Soni
 * jQuery Selections
 
     `$('selector').Sonic({options}).Sonic('play');       // Currently nonfunctional.`
-    `$('selector').Sonic({options}).play();              // Currently nonfunctional.`
     `$('selector').add($.Sonic({options})).play();       // Currently nonfunctional.`
     `$('selector').prepend($.Sonic('play',{options}));   // Currently nonfunctional.`
 
