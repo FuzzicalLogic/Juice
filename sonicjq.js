@@ -4,19 +4,23 @@
     var namespace = 'Sonic';
     var nil = function(){};
     var tmpItems;
+
 /* Default values for all Sonic(jQ) objects 
    ---------------------------------------------------- */
     var defCanvas = {
         width:0, height:0, padding:0,
-        fps:25, stepsPerFrame:1,
-        cache:[],
+        fps:30, 
+        size:10,
+        alpha:1,
+        frames:[],
         multiplier:1,
-        trailLength:1,
-        pointDistance:.05,
+        trailLength:500,
+        trailPoints:5,
         points:[],
         path:[ 
             ['line', 1, 1, 1, 1] 
         ],
+        length:1000,
         fillColor:"#FFF", strokeColor:"#FFF",
         setup:nil,
         teardown:nil,
@@ -90,13 +94,20 @@
         return $.each(items, function () {
             var $me = $(this),
                 data = $me.data(namespace);
+                console.log(data);
+            var fps = data.fps,
+                len = data.length,
+                sec = 1e3,
+                nFrames = data.fps * (len / sec);
+            data.maxFrames = nFrames;
         // Set flag
             data.isStopped = false;
         // Clear the timer, in case of multiple play()s
             if (data.timer)
                 clearInterval(data.timer);
         // Begin drawing
-            data.timer = setInterval(function() {draw(data.context, data);}, 1e3 / data.fps);    
+
+            data.timer = setInterval(function() {draw(data);}, 1e3 / data.fps);    
         });
     };
     
@@ -110,10 +121,11 @@
         });
     };
     
-    var draw = function (context, data) 
-    {   if (!prep(context, data, data.frame)) {
-            context.clearRect(0, 0, data.fullWidth, data.fullWidth);
-            context.putImageData(data.imageData[data.frame], 0, 0)
+    var draw = function (data) 
+    {   var c2d = data.context;
+        if (!prep(data)) {
+            c2d.clearRect(0, 0, data.fullWidth, data.fullWidth);
+            c2d.putImageData(data.frames[data.frame], 0, 0)
         }
         nextFrame(data);
     };
@@ -154,39 +166,51 @@
             }
         }
     };
-    var prep = function (context, options, frame) 
-    {//Check our image Cache
-        if (frame in options.imageData) 
+    var prep = function (options) 
+    {   var f = options.frame,
+            c2d = options.context,
+            cache = options.frames;
+    // Image Properties
+        var w = options.fullWidth, 
+            h = options.fullHeight;
+    // Check our image Cache
+        if (f in cache) 
             return;
-        context.clearRect(0, 0, options.fullWidth, options.fullHeight);
+        c2d.clearRect(0, 0, w, h);
         var t = options.points,
             n = t.length,
             r = options.pointDistance,
             i, s, o;
             options.setup(options);
+
+        c2d.globalAlpha = options.alpha;
         
-        for (var u = -1, a = n * options.trailLength; ++u < a && !options.isStopped;) {
-            s = frame + u;
-            i = t[s] || t[s - n];
-            if (!i) continue;
-            options.alpha = Math.round(1e3 * (u / (a - 1))) / 1e3;
-            context.globalAlpha = options.alpha;
-            context.fillStyle = options.fillColor;
-            context.strokeStyle = options.strokeColor;
-            o = frame / (options.points.length - 1);
-            indexD = u / (a - 1);
-            options.preStep(i, indexD, o);
-            options.stepMethod(i, indexD, o, context);
+        
+        
+        var ptDistance = (options.trailLength/options.length) / options.trailPoints;
+        var curProgress = f / options.maxFrames;
+        var ptProgress, ptAlpha, ptSize;
+        for (var pt = 0, a = options.trailPoints; ++pt <= a  && !options.isStopped;)
+        {   ptProgress = curProgress - ((a - pt) * ptDistance);
+            ptAlpha = (pt / a) * options.alpha;
+            ptSize = (pt / a) * options.size;
+            c2d.globalAlpha = ptAlpha;
+            //options.preStep(i, 0, o);
+            c2d.fillStyle = options.fillColor;
+            c2d.strokeStyle = options.strokeColor;
+            options.stepMethod(options, ptProgress, ptSize, ptAlpha);
         }
+     
         options.teardown();
-        options.imageData[frame] = context.getImageData(0, 0, options.fullWidth, options.fullHeight);
+     // Cache the image
+        cache[f] = c2d.getImageData(0, 0, w, h);
         return true;
     };
     
     var nextFrame = function (options) {
-        options.frame += options.stepsPerFrame;
-        if (options.frame >= options.points.length) {
-            options.frame = 0
+        var max = options.maxFrames;
+        if (++options.frame >= max) {
+            options.frame = 0;
         }
     };
     
@@ -206,26 +230,27 @@
             link.stop = jQStop;
             tmpItems = link;
         // Add the loaders
-            return $.each(link, function () {
+            return $.each(link, function () 
+            {//Key savers
                 var me = this,
-                    $me = $(this);
+                    $me = $(this),
+                    data = $me.data(namespace);
                 
-                var data = $me.data('Sonic');
-                // If the plugin hasn't been initialized yet
+            // If the plugin hasn't been initialized yet
                 if (!data) {
-                // Attach the data to the element
-                    $me.data('Sonic', options);
+                // Clone options and attach to canvas
+                    $me.data(namespace, $.extend({}, options));
                 // Save Keystrokes
-                    data = $me.data('Sonic');
+                    data = $me.data(namespace);
                     data.stepMethod = typeof data.step == "string" ? s[data.step] : data.step || s.square;
                     data.context = me.getContext("2d");
                     data.fullWidth = data.width + 2 * data.padding;
                     data.fullHeight = data.height + 2 * data.padding;
-                    data.play = function(){console.log('My data just got played');};
+                    data.play = function(){};
                     data.imageData = [];
                     $me.attr('height', data.fullHeight);
                     $me.attr('width', data.fullWidth);
-                    data.frame = 0
+                    data.frame = 0;
                     setup(data);
                 }
             });
@@ -248,9 +273,8 @@
         console.log(options instanceof $);
         if (typeof options == 'object')
         {   if (options instanceof $)
-            {   console.log('Adding links to Chain');
-                var list = jQFind(options, create);
-                list.play = function(){console.log('We just got played');}
+            {   var list = jQFind(options, create);
+                list.play = function(){}
                 return list;
             }
             else 
@@ -273,19 +297,16 @@
             $.error('Method ' + method + ' does not exist on jQuery.tooltip');
         }
     };
-    $.fn.Sonic.play = function(items) {console.log('You just played some jQ Sonics');};
+    $.fn.Sonic.play = function(items) {};
 
 /* Helper Methods
    ---------------------------------------------------- */
 /* Finds the Sonic objects in the given list. */
     var jQFind = function(items, addMissing)
     {   var list = [];
-        console.log(addMissing);
-        var addNew = addMissing;
         items.each(function()
         {   if($(this).prop('tagName') != 'CANVAS')
-            {   console.log(addMissing);
-                if (addNew)
+            {   if (addMissing)
                 {   var a = document.createElement('canvas');
                     $(a).addClass('Sonic');
                     $(this).prepend($(a));
