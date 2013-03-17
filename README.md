@@ -4,6 +4,8 @@ Sonic(jQ) uses the HTML5 Canvas to allow dynamic, fluid loading animations witho
 
 Sonc(jQ) is a complete rework of [Sonic.js](https://github.com/padolsey/Sonic). The primary goal of this redesign was to take advantage of the usability of the jQuery framework without making it a dependency. Secondary goals included providing more consistent expected behavior and reducing the overall amount of code required to begin using Sonic as a whole.
 
+See the [Change Log](https://github.com/FuzzicalLogic/Sonic-jQ-Plugin/blob/master/changelog.md) for milestones and roadmap.
+
 ### Usage
 
 Currently, the plugin requires jQuery (tested with 1.9+). 
@@ -212,33 +214,4 @@ The road to completion requires significant changes to the way the original Soni
 
     `domNode.appendChild(Sonic({options}).play());`
     
-### Completed Milestones
 
-* (3/17/2013) Added User Object
-    * Accessed in options.user
-* (3/17/2013) Added Point Object
-    * Support for distinct paths (falls back to step)
-    * Support for distinct trail object (falls back to global)
-    * Support for distinct size, color and alpha (falls back to global)
-* (3/17/2013) Added Trail Object
-    * Added default values
-* (3/16/2013) Changed/Optimized the way Trails are rendered.
-    * `trailLength` is now measured in millseconds.
-    * `trailPoints` is now the number of points along the trail.
-    * `pointDistance` is now obsolete. 
-    Point Distance is now automatically calculated using the following formula: `((Trail Length)/(Animation Length))/(Num of Trail Points)`.
-    * Pre-stepping is no longer required to cache point positions.
-* (3/16/2013) Changed to FPS/Length model from FPS/StepsPerFrame model
-    * FPS no longer affects animation speed.
-    * StepsPerFrame is deprecated.
-    * Frame is no longer sent to `step()` function. 
-    * `Step()` signature has changed. Step now receives the following parameters:
-        * `context`  - The `2DContext` for the HTML Canvas.
-        * `progress` - Point's progress along the current path. 
-        * `options`  - Giving access to all user set options. See [User Options](#User Options) for full details...
-    * `Step()` is still used to paint the trail.
-    * Image Caching has changed: The number of Frames cached = (Animation Length / 1 second) * FPS
-* (3/14/2013) Allow Sonic to differentiate between jQuery and Options objects.
-* (3/14/2013) Change returns and actions to the Canvas HTMLElement.
-* (3/14/2013) Add better default handling. All options are optional. This allows Sonic to play a very uninteresting line animation.
-* (3/13/2013) Add data object to the Canvas HTMLElement.
