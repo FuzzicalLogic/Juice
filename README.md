@@ -139,19 +139,54 @@ These objects are placed into the `points` array, enabling each point to have th
 
 ### Advanced Usage
 
+#### Setup Function
+
+The setup function allows for specialized programming and calculations before drawing even begins. It only has one argument, `options`, which gives the function the ability to view all options. This is an optimal place to pre-calculate values that are used often, but might be constant, given specific parameters.
+
+For instance, imagine an custom elliptical path function that scales with the canvas size. You might prefer to calculate the center and ratios prior to the actual animation to save processing. Once these are calculated, you can store them in the `options` for use by your path. Here's an example:
+
+    setup: function(options) {
+    // Calculate Centers based on dimensions
+        var ctrX = (options.width - options.size) / 2,
+            ctrY = (options.height - options.size) / 2;
+    // Calculate Width and Height Adjustments for ellipse
+        var modW = ctrX / 2,
+            modH = ctrY / 4;
+            
+    // Store values in the options
+        options.centerX = ctrX;
+        options.centerY = ctrY;
+        options.adjustX = modX;
+        options.adjustY = modY;
+    },
+
 #### Path Functions
+
+Path Functions allow you to program a custom path for each and every point. Each path will have its own progress indicator and will receive the current point (and trailpoints if trails are active). Below is the signature for a Path Function.
+
+    path: function(data, progress, pt, trail) {
+        ... add code here ...
+    },
+
+* `data` is the [Options Object](#options)
+* `progress` - the percentage (in decimal form) of the point's progress along the path (modified by the trail for convenience).
+* `pt` - The point object from the options.
+* `trail` - the percentage (in decimal form) of the trail's completion.
+
+##### Drawing in a Path Function
+
+To draw during the path function, don't forget to grab the [Context2D](http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/) from the `data` argument. After you have the context, you may utilize the context's drawing methods to draw upon the canvas. It is important to note that `data` is the entire [Options Object](#options). Avoid setting any values here, but feel free to grab and use any values that it provides. 
 
 #### Step Functions
 
-Step Functions in Sonic(jQ) are significantly different from the sonic.js Step Functions. One major difference is that Step Functions are attached to the animation's total progress. In general, if using [multiple points](#point-objects), you consider using [Path Functions](#path-functions) instead. Below is the signature for a step function.
+Step Functions in Sonic(jQ) are significantly different from the sonic.js Step Functions. One major difference is that Step Functions are attached to the animation's total progress. This function fires before any paths have been drawn, but after the frame has been initialized. In general, if using [multiple points](#point-objects), you consider using [Path Functions](#path-functions) instead. Below is the signature for a step function.
 
-    step: function(data, progress, trail) {
+    step: function(data, progress) {
         ... add code here
     }
 
-* `data` is the [Options Object](#options)
-* `progress` _(.01 to 1.00)_ represents the percentage of the animation's completion (modified by the trail for convenience).
-* `trail` _(.01 to 1.00)_ represents the current percentage of the trail's completion.
+* `data` - the [Options Object](#options)
+* `progress` - the percentage of the animation's completion.
 
 ##### Drawing in a Step Function
 
@@ -173,13 +208,13 @@ To draw during the step function, don't forget to grab the [Context2D](http://ww
         c2d.closePath();
     }
     
-#### Trailing Points
-
-In Sonic(jQ), trails are handling almost automatically. Simply add a [Trail Object](#trail-objects) either to the Options or to a [Point Object](#point-objects).
-
 ### Note: Differences from Sonic.js
 
 Sonic.js assumed and tracked a single point (and its trail points) along a single progression. In order to accomplish what Sonic(jQ) accomplishes naturally, one had to create a custom `step()` function that manually drew each additional point. In order to get the best use from Sonic(jQ), think of each point object as a sonic.js instance. While this does not accurately illustrate the differences, it should be sufficient for most situations. 
+
+#### Trailing Points
+
+In Sonic(jQ), trails are handling almost automatically. Simply add a [Trail Object](#trail-objects) either to the Options or to a [Point Object](#point-objects).
 
 ### Road Map for Development
 
