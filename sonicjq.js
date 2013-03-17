@@ -3,7 +3,7 @@
    ---------------------------------------------------- */
     var namespace = 'Sonic';
     var nil = function(){};
-    
+    var tmpItems;
 /* Default values for all Sonic(jQ) objects 
    ---------------------------------------------------- */
     var defCanvas = {
@@ -13,7 +13,10 @@
         multiplier:1,
         trailLength:1,
         pointDistance:.05,
-        path:[['line', 1, 1, 1, 1]],
+        points:[],
+        path:[ 
+            ['line', 1, 1, 1, 1] 
+        ],
         fillColor:"#FFF", strokeColor:"#FFF",
         setup:nil,
         teardown:nil,
@@ -21,15 +24,70 @@
         domClass:"Sonic"
     };
     var defPoint = {
-        path:[['line', 1, 1, 1, 1]],
+        path:[
+            ['line', 1, 1, 1, 1]
+            ],
         fillColor:"#FFF", strokeColor:"#FFF",
+    };
+
+
+    var n = argTypes = {
+        DIM: 1,
+        DEGREE: 2,
+        RADIUS: 3,
+        OTHER: 0
+    };
+    var r = argSignatures = {
+        arc: [1, 1, 3, 2, 2, 0],
+        bezier: [1, 1, 1, 1, 1, 1, 1, 1],
+        line: [1, 1, 1, 1]
+    };
+    var i = pathMethods = {
+        bezier: function (e, t, n, r, i, s, o, u, a) {
+            e = 1 - e;
+            var f = 1 - e,
+                l = e * e,
+                c = f * f,
+                h = l * e,
+                p = 3 * l * f,
+                d = 3 * e * c,
+                v = c * f;
+            return [h * t + p * s + d * u + v * r, h * n + p * o + d * a + v * i]
+        },
+        arc: function (e, t, n, r, i, s) {
+            var o = (s - i) * e + i;
+            var u = [Math.cos(o) * r + t, Math.sin(o) * r + n];
+            u.angle = o;
+            u.t = e;
+            return u
+        },
+        line: function (e, t, n, r, i) {
+            return [(r - t) * e + t, (i - n) * e + n]
+        }
+    };
+    var s = stepMethods = {
+        square: function (e, t, n, r, i) {
+            r.fillRect(e.x - 3, e.y - 3, 6, 6)
+        },
+        fader: function (e, t, n, r, i) {
+            r.beginPath();
+            if (this._last) {
+                this._.moveTo(this._last.x, this._last.y)
+            }
+            r.lineTo(e.x, e.y);
+            r.closePath();
+            r.stroke();
+            this._last = e
+        }
     };
 
 /* Actual Working Methods for the jQuery Plugin
    ---------------------------------------------------- */
 /* Plays the list of Sonic Canvases. */
     var jQPlay = function(items)
-    {   return $.each(items, function () {
+    {   if (typeof items == 'undefined')
+            items = tmpItems;
+        return $.each(items, function () {
             var $me = $(this),
                 data = $me.data(namespace);
         // Set flag
@@ -53,15 +111,15 @@
     };
     
     var draw = function (context, data) 
-    {   if (!prep(context, data, this.frame)) {
-            context.clearRect(0, 0, this.fullWidth, this.fullWidth);
-            context.putImageData(this.imageData[this.frame], 0, 0)
+    {   if (!prep(context, data, data.frame)) {
+            context.clearRect(0, 0, data.fullWidth, data.fullWidth);
+            context.putImageData(data.imageData[data.frame], 0, 0)
         }
-        this.nextFrame(context, data);
+        nextFrame(data);
     };
     
     var setup = function(options) {
-        var e, t, s, o, u = options;
+        var e, t, s, o, u = options.path;
         options.points = [];
         for (var a = -1, f = u.length; ++a < f;) {
             e = u[a].slice(1);
@@ -98,36 +156,36 @@
     };
     var prep = function (context, options, frame) 
     {//Check our image Cache
-        if (frame in this.imageData) 
+        if (frame in options.imageData) 
             return;
         context.clearRect(0, 0, options.fullWidth, options.fullHeight);
         var t = options.points,
-            n = options.length,
+            n = t.length,
             r = options.pointDistance,
             i, s, o;
-        this._setup();
+            options.setup(options);
         
-        for (var u = -1, a = n * options.trailLength; ++u < a && !data.isStopped;) {
-            s = e + u;
+        for (var u = -1, a = n * options.trailLength; ++u < a && !options.isStopped;) {
+            s = frame + u;
             i = t[s] || t[s - n];
             if (!i) continue;
             options.alpha = Math.round(1e3 * (u / (a - 1))) / 1e3;
             context.globalAlpha = options.alpha;
             context.fillStyle = options.fillColor;
             context.strokeStyle = options.strokeColor;
-            o = e / (options.points.length - 1);
+            o = frame / (options.points.length - 1);
             indexD = u / (a - 1);
-            options._preStep(i, indexD, o);
-            options.stepMethod(i, indexD, o);
+            options.preStep(i, indexD, o);
+            options.stepMethod(i, indexD, o, context);
         }
-        options._teardown();
+        options.teardown();
         options.imageData[frame] = context.getImageData(0, 0, options.fullWidth, options.fullHeight);
         return true;
     };
     
     var nextFrame = function (options) {
-        options.frame += data.stepsPerFrame;
-        if (options.frame >= data.points.length) {
+        options.frame += options.stepsPerFrame;
+        if (options.frame >= options.points.length) {
             options.frame = 0
         }
     };
@@ -146,11 +204,12 @@
         // Add the new links
             link.play = jQPlay;
             link.stop = jQStop;
+            tmpItems = link;
         // Add the loaders
             return $.each(link, function () {
                 var me = this,
                     $me = $(this);
-                //this.stepMethod = typeof obj.step == "string" ? s[obj.step] : obj.step || s.square;
+                
                 var data = $me.data('Sonic');
                 // If the plugin hasn't been initialized yet
                 if (!data) {
@@ -158,10 +217,12 @@
                     $me.data('Sonic', options);
                 // Save Keystrokes
                     data = $me.data('Sonic');
+                    data.stepMethod = typeof data.step == "string" ? s[data.step] : data.step || s.square;
                     data.context = me.getContext("2d");
                     data.fullWidth = data.width + 2 * data.padding;
                     data.fullHeight = data.height + 2 * data.padding;
                     data.play = function(){console.log('My data just got played');};
+                    data.imageData = [];
                     $me.attr('height', data.fullHeight);
                     $me.attr('width', data.fullWidth);
                     data.frame = 0
