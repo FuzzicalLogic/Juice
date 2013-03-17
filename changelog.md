@@ -1,7 +1,8 @@
 ## Change Log
 
 ### Version 0.0
-#### 3/17/2013
+
+##### 3/17/2013
 * Added User Object
     * Accessed in options.user
 * Added Point Object
@@ -10,7 +11,8 @@
     * Support for distinct size, color and alpha (falls back to global)
 * Added Trail Object
     * Added default values
-#### 3/16/2013
+
+##### 3/16/2013
 * Changed/Optimized the way Trails are rendered.
     * `trailLength` is now measured in millseconds.
     * `trailPoints` is now the number of points along the trail.
@@ -27,9 +29,11 @@
         * `options`  - Giving access to all user set options. See [User Options](#User Options) for full details...
     * `Step()` is still used to paint the trail.
     * Image Caching has changed: The number of Frames cached = (Animation Length / 1 second) * FPS
-#### 3/14/2013
+
+##### 3/14/2013
 * Allow Sonic to differentiate between jQuery and Options objects.
 * Change returns and actions to the Canvas HTMLElement.
 * Add better default handling. All options are optional. This allows Sonic to play a very uninteresting line animation.
-#### 3/13/2013
+
+##### 3/13/2013
 * Add data object to the Canvas HTMLElement.
