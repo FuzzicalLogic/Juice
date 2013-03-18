@@ -18,9 +18,6 @@
                 
             }
         ],
-        path:[ 
-            ['line', 1, 1, 1, 1] 
-        ],
         length:1000,
         setup:nil,
         teardown:nil,
@@ -28,11 +25,16 @@
         domClass:"Sonic"
     };
     var defPoint = {
-        size: 10,
+        size: 4,
         color:'#000000',
-        paths:[
-            ['line', 1, 1, 1, 1]
-        ]
+        paths: {
+             length:1000,
+             name:'line', 
+             startX: 1, 
+             startY: 1, 
+             endX: 1, 
+             endY: 1
+        }
     };
     var defTrail = {
         length: 500,
@@ -51,27 +53,67 @@
         bezier: [1, 1, 1, 1, 1, 1, 1, 1],
         line: [1, 1, 1, 1]
     };
-    var i = pathMethods = {
-        bezier: function (e, t, n, r, i, s, o, u, a) {
-            e = 1 - e;
-            var f = 1 - e,
+    var paths = {
+        bezier: function (data, progress, pt, trail) {
+            
+            var c2d = data.context,
+                path = pt.path,
+                adj = pt.size / 2;
+                
+            var p1x = path.startX,
+                p1y = path.startY,
+                p2x = path.endX,
+                p2y = path.endY,
+                cp1x = path.cp1x,
+                cp1y = path.cp1y,
+                cp2x = path.cp2x,
+                cp2y = path.cp2y;
+            
+            var e = 1 - progress;
+                f = 1 - e,
                 l = e * e,
                 c = f * f,
                 h = l * e,
                 p = 3 * l * f,
                 d = 3 * e * c,
                 v = c * f;
-            return [h * t + p * s + d * u + v * r, h * n + p * o + d * a + v * i]
+                //t, n, r, i, s, o, u, a
+                
+            var x = h * p1x + p * cp1x + d * cp2x + v * p2x,
+                y = h * p1y + p * cp1y + d * cp2y + v * p2y;
+                
+            c2d.fillRect(x - adj, y - adj, pt.size, pt.size);
         },
-        arc: function (e, t, n, r, i, s) {
-            var o = (s - i) * e + i;
-            var u = [Math.cos(o) * r + t, Math.sin(o) * r + n];
-            u.angle = o;
-            u.t = e;
-            return u
+        arc: function (data, progress, pt, trail) {
+            var c2d = data.context,
+                path = pt.path;
+            
+            var ctrX    = path.ctrX,
+                ctrY    = path.ctrY,
+                adj     = pt.size / 2,
+                r       = path.radius - adj,
+                start   = path.start,
+                end     = path.end;
+                
+            var angle = Math.PI * (end + (progress * (start - end))) / 180,
+                x = r * Math.sin(angle) + ctrX;// - adj,
+                y = r * Math.cos(angle) + ctrY;// - adj;
+            //c2d.fillRect(x - adj, y - adj, pt.size, pt.size);
+            c2d.beginPath();
+            c2d.arc(x,y,adj,0,360,false);
+            c2d.fill();
+            c2d.closePath();
         },
-        line: function (e, t, n, r, i) {
-            return [(r - t) * e + t, (i - n) * e + n]
+        line: function (data, progress, pt, trail) {
+            var c2d = data.context;
+            var path = pt.path;
+            var ctrX = path.startX + ((path.endX - path.startX) * progress),
+                ctrY = path.startY + ((path.endY - path.startY) * progress),
+                adj = pt.size / 2;
+            c2d.fillRect(ctrX,
+                         ctrY,
+                         pt.size,
+                         pt.size);
         }
     };
     var s = stepMethods = {
@@ -160,14 +202,16 @@
         var pts = 0,
             ptDistance = 0;
         if (options.trail)
-        {   pts = options.trail.points;
+        {   pts = options.trail.points + 1;
             ptDistance = (options.trail.length / options.length) / pts;
         }
         var curProgress = f / options.maxFrames;
         var ptProgress, modTrail;
         $.each(options.points, function() {
-        for (var pt = 0, a = pts + 1; ++pt <= a  && !options.isStopped;)
+        for (var pt = 0, a = pts; pt++ < a  && !options.isStopped;)
         {   ptProgress = curProgress - ((a - pt) * ptDistance);
+            if (ptProgress < 0)
+                ptProgress = ptProgress + 1;
             modTrail = (pt / a);
             c2d.globalAlpha = (pt / a) * options.alpha;
             if (this.color)
@@ -181,17 +225,25 @@
             }
             //options.preStep();
             if (this.paths)
-                this.paths(options, ptProgress, modTrail, this);
+            {   this.path = this.paths;
+                if (typeof this.paths == 'function')
+                    this.paths(options, ptProgress, this, modTrail);
+                else if (typeof this.paths == 'object')
+                {   var doThis = getNamedPath(this.paths.name);
+                    if (typeof doThis == 'function')
+                        doThis(options, ptProgress, this, modTrail);
+                }
+            }
         // Default to global Step() function
             else
-                options.step(options,ptProgress, modTrail, this);
+                options.step(options,ptProgress, this, modTrail);
         }
         });
         //options.teardown();
     // Cache the image
         return c2d.getImageData(0, 0, w, h);
     };
-    
+
 /* jQuery Methods
    ---------------------------------------------------- */
 /* These methods simply point to the appropriate working 
@@ -295,6 +347,17 @@
         });
         return list;
     };
+    
+    var getNamedPath = function(name)
+    {   if (name)
+        {   if (name == 'line')
+                return paths.line;
+            else if (name == 'arc')
+                return paths.arc;
+            else if (name == 'bezier')
+                return paths.bezier;
+        }
+    }
     
     var getPathStep = function(path)
     {
