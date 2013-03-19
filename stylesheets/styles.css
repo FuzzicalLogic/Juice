@@ -207,6 +207,7 @@ hr {
 }
 
 footer { position:fixed; bottom:3em; width:850px; }
+footer h1 { margin-bottom: .5em; font-size: 1.2em; padding-left: .5em; }
 footer p { margin:0; }
 footer p a { font-weight:bold;}
 
