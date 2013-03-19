@@ -2,6 +2,29 @@
 
 ### Version 0.0
 
+##### 3/18/2013
+* Completed Point Object
+    * Can only be created by a Juice.Animation
+    * Added individualize Trails
+    * instanceof = Juice.Point
+* Completed Animation Object
+    * Stored in the Canvas data.
+    * instanceof = Juice.Animation
+* Completed Path Object
+    * instanceof = Juice.Path
+    * Attached to Juice.Points at creation.
+* Completed Trail Object
+    * Attached (w/ defaults) to Juice.Animation.
+    * May be Attached to Juice.Points
+    * Missing properties in a Point Trail will defer to Animation Trails
+    * Added options: 
+        * `fade` - points in trail to fade away
+        * `transform` - points in trail get progressively smaller
+* Fixed Chaining for $().Juice() functions
+    * $.('selector').Juice.play() now works.
+    * $.('Selector').Juice().play() now works.
+    * $.Juice('selector').play() now works.
+
 ##### 3/17/2013
 * Added User Object
     * Accessed in options.user
@@ -31,9 +54,29 @@
     * Image Caching has changed: The number of Frames cached = (Animation Length / 1 second) * FPS
 
 ##### 3/14/2013
-* Allow Sonic to differentiate between jQuery and Options objects.
+* Allow Juice to differentiate between jQuery and Options objects.
 * Change returns and actions to the Canvas HTMLElement.
-* Add better default handling. All options are optional. This allows Sonic to play a very uninteresting line animation.
+* Add better default handling. All options are optional. 
 
 ##### 3/13/2013
 * Add data object to the Canvas HTMLElement.
+
+## Road Map for Development
+
+##### 1. Complete Chaining to allow the following Syntaxes:
+
+* jQuery object
+
+    `$.Juice({options}).appendTo('selector').play();     // Currently nonfunctional.`
+    `$.Juice('play', {options});                         // Currently nonfunctional.`
+    
+* jQuery Selections
+
+    `$('selector').Juice({options}).Sonic('play');       // Currently nonfunctional.`
+    `$('selector').add($.Juice({options})).play();       // Currently nonfunctional.`
+    `$('selector').prepend($.Juice('play',{options}));   // Currently nonfunctional.`
+
+* Non-jQuery
+
+    `domNode.appendChild(Juice({options}).play());`
+    
