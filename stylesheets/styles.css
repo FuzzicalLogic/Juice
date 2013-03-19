@@ -112,6 +112,9 @@ header {
   position:fixed;
 }
 
+header h1 {
+  font-size:2.2em;
+}
 header nav ul {
   list-style:none;
   width:100%; height:2.2em;
@@ -172,13 +175,7 @@ header ul a strong {
   display:block;
   color:#222;
 }
-/*
-header p.view {
-  color:#FFF;
-  border-radius:.25em;
-  background-color:#494949;
-}
-*/
+
 header p.view small {
   display:inline-block;
 }
@@ -189,6 +186,14 @@ section {
   padding-bottom:50px;
 }
 
+section#body h1 {
+  font-size: 1.2em;
+  background-color: #333333;
+  padding: .25em .5em;
+  border-radius: .5em;
+  color: white;
+  margin-bottom: .75em;
+}
 small {
   font-size:11px;
 }
