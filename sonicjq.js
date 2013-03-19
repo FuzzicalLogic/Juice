@@ -1,136 +1,512 @@
-(function ($) {
+(function (S,$)
+{   var ns = 'Sonic';
 /* Convenience variables (Mostly for saving keystrokes)
-   ---------------------------------------------------- */
-    var namespace = 'Sonic';
-    var nil = function(){};
+---------------------------------------------------- */
+    var NIL = function(){};
+//Animation Namespace
+    (function(S, A)
+    {   var namespace = ns + '.Animation';
+    
+        A.prototype = {
+            play: function() {
+                var _ = this;
+                    console.log(_);
+                var fps = _.fps,
+                    len = _.length,
+                    sec = 1e3,
+                    nFrames = fps * (len / sec);
+                _.maxFrames = nFrames;
+            // Setup the animation
+                _.setup(_);
+                _.loops = 0;
+                _.isStopped = false;
+            // Clear the timer, in case of multiple play()s
+                if (_.timer)
+                    clearInterval(_.timer);
+            // Begin drawing
+                _.timer = setInterval(
+                    function() {
+                        if (!(_.isStopped)) _.draw();
+                        else  clearInterval(_.timer);
+                    }, 
+                    1e3 / fps
+                );    
+            },
+            stop: function() {
+                this.isStopped = false;
+            // Clear the timer, in case of multiple play()s
+                if (this.timer)
+                    clearInterval(this.timer);
+            },
+
+            draw: function () 
+            {   var _ = this,
+                    f = _.frame,
+                    max = _.maxFrames,
+                    c2d = _.context,
+                    cache = _.cache;
+                
+            // Init frames
+                if (!f) _.frame = 0;
+            // Clear the image entirely
+                c2d.clearRect(0, 0, _.fullWidth, _.fullWidth);
+            // If frame is cached, draw immediately
+                if (f in cache)
+                    c2d.putImageData(cache[f], 0, 0)
+            // Otherwise draw the frame manually
+                else _.cache[f] = _.drawFrame();
+                
+            // Increment the frame and store it.
+                if (++_.frame >= max)
+                {   _.loops++;
+                    _.frame = 0;
+                    if (_.onLoop)
+                        _.onLoop(_.loops);
+                }
+            },
+            
+            drawFrame: function () 
+            {   var _ = this,
+                    f = _.frame,
+                    c2d = _.context;
+            // Image Properties
+                var w = _.fullWidth, 
+                    h = _.fullHeight;
+                    
+                c2d.globalAlpha = _.alpha;
+                $.each(_.points, function() {
+                    this.draw(f / _.maxFrames);
+                });
+                //options.teardown();
+            // Cache the image
+                return c2d.getImageData(0, 0, w, h);
+            }
+            
+        };
+    }
+    (S, S.Animation = S.Animation || 
+        function(data) 
+        {//Initialize
+            var d = !data ? {} : data;
+        // Set defaults... the hard way!
+            this.cssID = !d.cssID ? null : d.cssID;
+            this.cssClass = !d.cssClass ? ns : d.cssClass;
+            this.width  = !d.width  ? 50 : d.width;
+            this.height = !d.height ? 50 : d.height;
+            this.padding = !d.padding ? 0 : d.padding;
+            this.fullWidth = this.width + 2 * this.padding;
+            this.fullHeight = this.height + 2 * this.padding;
+        // Animation Defaults
+            this.cache = [];
+            this.context = !d.context ? null : d.context;
+            this.length = !d.length ? 1000 : d.length;
+            this.fps = !d.fps ? 30 : d.fps;
+            this.alpha = !d.alpha ? 1 : d.alpha;
+        // Global Fallbacks
+            this.ptSize = !d.ptSize ? 10 : d.ptSize;
+        // Animation Functions
+            this.setup = !d.setup ? NIL : d.setup;
+            //this.preStep = !d.preStep ? NIL : d.preStep;
+            //this.teardown = !d.teardown ? NIL : d.teardown;
+            //this.complete = !d.complete ? NIL : d.complete;
+            this.onLoop = !d.onLoop ? NIL : d.onLoop;
+        // Child Objects w/o Siblings
+            trl = !d.trail ? {} : d.trail;
+            this.trail = new Sonic.Trail(trl);
+        // Child Objects w/ Siblings
+            this.points = [];
+            pts = !d.points ? [{}] : d.points;
+            var l = pts.length;
+            for (var i = 0; i < l; i++) 
+            {// Create the new element...
+                this.points[i] = new Sonic.Point(this, pts[i]);
+            }
+        // Return the results            
+            return this;
+        }
+    ));
+    
+    (function(S, P)
+    {//Namespace
+        var namespace = ns + '.Point';
+    // Inherited Functions
+        P.prototype.draw = function(p) 
+        {//Initialize
+            var _ = this, 
+                t = _.trail,
+                ptProgress = 0;
+            for (var pt = 0, a = t.points + 1; pt++ < a  && !_.isStopped;)
+            {   ptProgress = p - ((a - pt) * t.distance);
+                if (ptProgress < 0)
+                    ptProgress = ptProgress + 1;
+                this.modifier = (pt / a);
+               //options.preStep();
+                if (this.paths)
+                {   _.path = _.paths;
+                    if (typeof _.paths == 'function')
+                        _.paths(ptProgress, _);
+                    else if (typeof _.paths == 'object')
+                    {   _.paths.draw(ptProgress, _);
+                    }
+                }
+            // Default to global Step() function
+                else
+                    ;//_.step(ptProgress, this);
+            }
+        };
+        P.prototype.canFade = function() {
+            return this.trail.fade;
+        };
+        P.prototype.canResize = function() {
+            return this.trail.transform;
+        };
+        P.prototype.onDestroy = function() {
+            if (this.Animation)
+                this.Animation = null;
+        };
+    // Round Point Objects
+        (function(P,C)
+        {//Inherited Functions
+            C.prototype.draw = P.prototype.draw;
+            C.prototype.canFade = P.prototype.canFade;
+            C.prototype.canResize = P.prototype.canResize;
+            C.prototype.onDestroy = P.prototype.onDestroy;
+        // New/Overridden Functions
+            C.prototype.render = function(x,y) 
+            {//ERROR:No Context
+                if (this.Animation)
+                    if (this.Animation.context)
+                        c2d = this.Animation.context;
+                    else console.log('Invalid Canvas Context2D');
+                else console.log('This Point has no Animation');
+            // Initialize
+                x = !x ? 0 : x;
+                y = !y ? 0 : y;
+                var s = !(this.ptSize) ? 1 : this.ptSize;
+                var a = s / 2;
+            // Account for Trailing
+                if (this.canResize())
+                    s = s * this.modifier;
+                if (this.canFade())
+                    c2d.globalAlpha = this.alpha * this.modifier;
+            // Draw the Point
+                c2d.fillStyle = this.color;
+                c2d.beginPath();
+                c2d.arc(x,y,a,0,360,false);
+                c2d.fill();
+                c2d.closePath();
+            };
+        }
+        (P, P.Round = P.Round 
+        ||  function(anim, data)
+            {//Initialize
+                var d = !data ? {} : data;
+            // Set the parent appropriately
+                if (anim) this.Animation = anim;
+            // Set defaults... the hard way!
+                this.ptSize  = !d.size  ? anim.ptSize  : d.size;
+                this.color = d.color ? d.color : anim.color;
+                this.alpha = d.alpha ? d.alpha : anim.alpha;
+                this.paths = new Sonic.Path(anim, d.paths);
+            // Possible Siblings Objects Last
+                this.trail = (!d.trail) 
+                         ? new Sonic.Trail(anim.trail) 
+                         : new Sonic.Trail(d.trail);
+                if (this.trail)
+                {   var t = this.trail, a = this.Animation;
+                    this.trail.distance = (t.length / a.length) / (t.points + 1);
+                }
+            // Return the results            
+                return this;
+            }
+        ));
+    // Rectangular Point Objects
+        (function(P,R)
+        {//Inherited Functions
+            R.prototype.draw = P.prototype.draw;
+            R.prototype.canFade = P.prototype.canFade;
+            R.prototype.canResize = P.prototype.canResize;
+            R.prototype.onDestroy = P.prototype.onDestroy;
+        // New/Overridden Functionality
+            R.prototype.render = function(x,y) 
+            {//ERROR:No Context
+                if (this.Animation)
+                    if (this.Animation.context)
+                        c2d = this.Animation.context;
+                    else console.log('Invalid Canvas Context2D');
+                else console.log('This Point has no Animation');
+            // Initialize
+                x = !x ? 0 : x;
+                y = !y ? 0 : y;
+                var s = !this.ptSize ? 1 : this.ptSize;
+                var a = s / 2;
+            // Account for Trailing
+                if (this.canResize())
+                    s = s * this.modifier;
+                if (this.canFade())
+                    c2d.globalAlpha = this.alpha * this.modifier;
+            // Draw the Point
+                c2d.fillStyle = this.color;
+                c2d.fillRect(x-a,y-a,s,s);
+            };
+        }
+        (P, P.Rect = P.Rect 
+        ||  function(anim, data) 
+            {//Initialize
+                var d = !data ? {} : data;
+            // Set the parent appropriately
+                if (anim) this.Animation = anim;
+            // Set defaults... the hard way!
+                this.ptSize  = !d.size ? anim.ptSize : d.size;
+                this.color = d.color ? d.color : anim.color;
+                this.alpha = d.alpha ? d.alpha : anim.alpha;
+                this.paths = new Sonic.Path(anim, d.paths);
+            // Possible Siblings Objects Last
+                this.trail = (!d.trail) 
+                         ? new Sonic.Trail(anim.trail) 
+                         : new Sonic.Trail(d.trail);
+                if (this.trail)
+                {   var t = this.trail, a = this.Animation;
+                    this.trail.distance = (t.length / a.length) / (t.points + 1);
+                }
+            // Return the results            
+                return this;
+            }
+        ));
+    }
+    (S, S.Point = S.Point || 
+        function(anim, data)
+        {//Initialize
+            var d = !data ? {} : data;
+        // Get the right kind of Point
+            this.type = !d.type ? 'rect': d.type;
+            if (this.type == 'round')
+                return new S.Point.Round(anim, data);
+            else
+                return new S.Point.Rect(anim, data);
+        }
+    ));
+    
+    (function(S,T)
+    {}
+    (S, S.Trail = S.Trail 
+    ||  function(data)
+        {//Initialize
+            var data = !data ? {} : data;
+        // Save keystrokes
+            var me = this, d = data;
+        // Set defaults... the hard way!
+            me.length    = !d.length    ?  500 : d.length;
+            me.points    = !d.points    ?   10 : d.points;
+            me.fade = !d.fade ? typeof d.fade == 'undefined' ? true : d.fade : d.fade;
+            me.transform = !d.transform ? typeof d.transform == 'undefined' ? false : d.transform : d.transform;
+        // Return the results            
+            return me;
+        }
+    ));
+    
+    (function(S,P)
+    {
+        (function(P,L)
+        {   L.prototype.draw = function (progress, pt) {
+                var x = this.startX + ((this.endX - this.startX) * progress),
+                    y = this.startY + ((this.endY - this.startY) * progress);
+                pt.render(x,y);
+            };
+        
+        }(P, P.Line = P.Line 
+        ||  function(anim, data) 
+            {   var d = !data ? {} : data;
+                this.startX = d.startX;
+                this.startY = d.startY;
+                this.endX = d.endX;
+                this.endY = d.endY;
+                return this;
+            }
+        ));
+        (function(P,A)
+        {   A.prototype.draw = function (progress, pt) {
+                var ctrX    = this.ctrX,
+                    ctrY    = this.ctrY,
+                    adj     = pt.ptSize / 2,
+                    r       = this.radius - adj,
+                    start   = this.start,
+                    end     = this.end;
+                    
+                var angle = Math.PI * (end + (progress * (start - end))) / 180,
+                    x = r * Math.sin(angle) + ctrX;
+                    y = r * Math.cos(angle) + ctrY;
+                pt.render(x,y);
+            };
+        
+        }(P, P.Arc = P.Arc 
+        ||  function(anim, data) 
+            {   var d = !data ? {} : data;
+                this.ctrX = d.ctrX;
+                this.ctrY = d.ctrY;
+                this.radius = d.radius;
+                this.start = d.start;
+                this.end = d.end;
+                return this;
+            }
+        ));
+        (function(P,E)
+        {
+        
+        }(P, P.Ellipse = P.Ellipse 
+        ||  function(anim, data) 
+            {
+                return this;
+            }
+        ));
+        (function(P,B)
+        {   B.prototype.draw = function (progress, pt) 
+            {   var adj = pt.ptSize / 2;
+                    
+                var p1x = this.startX,
+                    p1y = this.startY,
+                    p2x = this.endX,
+                    p2y = this.endY,
+                    cp1x = this.cp1x,
+                    cp1y = this.cp1y,
+                    cp2x = this.cp2x,
+                    cp2y = this.cp2y;
+                
+                var h = (1 - progress) * (1 - progress) * (1 - progress),
+                    p = 3 * (1 - progress) * (1 - progress) * progress,
+                    d = 3 * (1 - progress) * progress * progress,
+                    v = progress * progress * progress;
+                    
+                var x = h * p1x + p * cp1x + d * cp2x + v * p2x,
+                    y = h * p1y + p * cp1y + d * cp2y + v * p2y;
+                    
+                pt.render(x,y);
+            };
+        }(P, P.Bezier = P.Bezier 
+        ||  function(anim, data) 
+            {   d = !data ? {} : data;
+                this.startX = d.startX;
+                this.startY = d.startY;
+                this.endX = d.endX;
+                this.endY = d.endY;
+                this.cp1x = d.cp1x;
+                this.cp1y = d.cp1y;
+                this.cp2x = d.cp2x;
+                this.cp2y = d.cp2y;
+                return this;
+            }
+        ));
+        
+    }
+    (S, S.Path = S.Path 
+    ||  function(anim, data) 
+        {//Initialize
+            var d = !data ? {} : data;
+        // Save keystrokes
+            var me = this;
+        // Get the right kind of Point
+            me.name = !d.name ? '': d.name;
+            if (me.name == 'line')
+                return new Sonic.Path.Line(anim, data);
+            else if (me.name == 'arc')
+                return new Sonic.Path.Arc(anim, data);
+            else if (me.name == 'bezier')
+                return new Sonic.Path.Bezier(anim, data);
+            else if (me.name == 'ellipse')
+                return new Sonic.Path.Ellipse(anim, data);
+        }
+    ));
+    
+    if ($)
+    {// Sonic Namespace in $
+        (function(S,$)
+        {   S.Animation = Sonic.Animation;
+            S.play = function(items)
+            {   return $(items).each(function()
+                {   var d = $(this).data(ns);
+                    if (d instanceof Sonic.Animation)
+                        d.play();
+                });
+            }
+            S.stop = function(items)
+            {   return $(items).each(function()
+                {   var d = $(this).data(ns);
+                    if (d instanceof Sonic.Animation)
+                        d.stop();
+                });
+            }
+        }
+        ($.Sonic = $.Sonic || function(){return this.each(function(){return this;});}, $)); 
+    //Sonic Namespace in $.fn
+        (function(S,fn)
+        {   
+            S.methods = {
+                init: function (options) {
+                    var jQ = $,
+                        link = jQFind(this, true);
+                // Add the new links
+                    link.play = jQPlay;
+                    link.stop = jQStop;
+                    tmpItems = link;
+                // Add the loaders
+                    $.each(link, function () 
+                    {//Key savers
+                        var me = this,
+                            $me = $(this),
+                            data = $me.data(ns);
+                        
+                    // If the plugin hasn't been initialized yet
+                        if (!data) 
+                        {//Clone options and attach to canvas
+                            options.context = me.getContext('2d');
+                            $me.data(ns, new Sonic.Animation(options));
+                        // Save Keystrokes
+                            data = $me.data(ns);
+                            $me.attr('height', data.fullHeight);
+                            $me.attr('width', data.fullWidth);
+                        }
+                    });
+                    var $link = $(link);
+                    $link.play = function() { return jQPlay($(link)); };
+                    return $link;
+                },
+                play: function () {
+                    var list = jQFind(this, false);
+                    return jQPlay(list);
+                },
+                stop: function () {
+                    var list = jQFind(this, false);
+                    return jQStop(list);
+                },
+            };
+            S.play = function() { return jQPlay(this.jQCache); }
+            S.stop = function() { return jQStop(this.jQCache); }
+        }
+        
+        ($.fn.Sonic = $.fn.Sonic || function (method)
+        {   var ns = $.fn.Sonic;
+            var fn = $.fn.Sonic.methods;
+            
+            if (fn[method]) 
+            {
+                return fn[method].apply(this, Array.prototype.slice.call(arguments, 1));
+            } 
+            else if (typeof method === 'object') 
+            {
+                return fn.init.apply(this, arguments);
+            } 
+            else if (typeof method == 'undefined') 
+            {
+                ns.jQCache = this;
+                this.play = function() { return jQPlay(this);};
+                this.stop = function() { return jQStop(this);};
+                return this;
+            }
+        }, $.fn));
+    };
+    
+    
     var tmpItems;
-
-/* Default values for all Sonic(jQ) objects 
-   ---------------------------------------------------- */
-    var defCanvas = {
-        cache:[],
-        width:50, height:50, padding:0,
-        fps:40, 
-        size:10,
-        alpha:.9,
-        points:[
-            {    
-                
-            }
-        ],
-        length:1000,
-        setup:nil,
-        teardown:nil,
-        preStep:nil,
-        domClass:"Sonic"
-    };
-    var defPoint = {
-        size: 4,
-        color:'#000000',
-        paths: {
-             length:1000,
-             name:'line', 
-             startX: 1, 
-             startY: 1, 
-             endX: 1, 
-             endY: 1
-        }
-    };
-    var defTrail = {
-        length: 500,
-        points:15
-    };
-
-
-    var n = argTypes = {
-        DIM: 1,
-        DEGREE: 2,
-        RADIUS: 3,
-        OTHER: 0
-    };
-    var r = argSignatures = {
-        arc: [1, 1, 3, 2, 2, 0],
-        bezier: [1, 1, 1, 1, 1, 1, 1, 1],
-        line: [1, 1, 1, 1]
-    };
-    var paths = {
-        bezier: function (data, progress, pt, trail) {
-            
-            var c2d = data.context,
-                path = pt.path,
-                adj = pt.size / 2;
-                
-            var p1x = path.startX,
-                p1y = path.startY,
-                p2x = path.endX,
-                p2y = path.endY,
-                cp1x = path.cp1x,
-                cp1y = path.cp1y,
-                cp2x = path.cp2x,
-                cp2y = path.cp2y;
-            
-            var e = 1 - progress;
-                f = 1 - e,
-                l = e * e,
-                c = f * f,
-                h = l * e,
-                p = 3 * l * f,
-                d = 3 * e * c,
-                v = c * f;
-                //t, n, r, i, s, o, u, a
-                
-            var x = h * p1x + p * cp1x + d * cp2x + v * p2x,
-                y = h * p1y + p * cp1y + d * cp2y + v * p2y;
-                
-            c2d.fillRect(x - adj, y - adj, pt.size, pt.size);
-        },
-        arc: function (data, progress, pt, trail) {
-            var c2d = data.context,
-                path = pt.path;
-            
-            var ctrX    = path.ctrX,
-                ctrY    = path.ctrY,
-                adj     = pt.size / 2,
-                r       = path.radius - adj,
-                start   = path.start,
-                end     = path.end;
-                
-            var angle = Math.PI * (end + (progress * (start - end))) / 180,
-                x = r * Math.sin(angle) + ctrX;// - adj,
-                y = r * Math.cos(angle) + ctrY;// - adj;
-            //c2d.fillRect(x - adj, y - adj, pt.size, pt.size);
-            c2d.beginPath();
-            c2d.arc(x,y,adj,0,360,false);
-            c2d.fill();
-            c2d.closePath();
-        },
-        line: function (data, progress, pt, trail) {
-            var c2d = data.context;
-            var path = pt.path;
-            var ctrX = path.startX + ((path.endX - path.startX) * progress),
-                ctrY = path.startY + ((path.endY - path.startY) * progress),
-                adj = pt.size / 2;
-            c2d.fillRect(ctrX,
-                         ctrY,
-                         pt.size,
-                         pt.size);
-        }
-    };
-    var s = stepMethods = {
-        square: function (e, t, n, r, i) {
-            r.fillRect(e.x - 3, e.y - 3, 6, 6)
-        },
-        fader: function (e, t, n, r, i) {
-            r.beginPath();
-            if (this._last) {
-                this._.moveTo(this._last.x, this._last.y)
-            }
-            r.lineTo(e.x, e.y);
-            r.closePath();
-            r.stroke();
-            this._last = e
-        }
-    };
 
 /* Actual Working Methods for the jQuery Plugin
    ---------------------------------------------------- */
@@ -139,196 +515,21 @@
     {   if (typeof items == 'undefined')
             items = tmpItems;
         return $.each(items, function () {
-            var $me = $(this),
-                data = $me.data(namespace);
-                console.log(data);
-            var fps = data.fps,
-                len = data.length,
-                sec = 1e3,
-                nFrames = fps * (len / sec);
-            data.maxFrames = nFrames;
-        // Setup the animation
-            data.setup(data);
-            data.isStopped = false;
-        // Clear the timer, in case of multiple play()s
-            if (data.timer)
-                clearInterval(data.timer);
-        // Begin drawing
-            data.timer = setInterval(
-                function() {    draw(data);    }, 
-                1e3 / fps
-            );    
-        });
+            var d = $(this).data(ns);
+            if (d instanceof Sonic.Animation)
+                d.play();
+       });
     };
     
 /* Stops the list of Sonic Canvases. */
     var jQStop = function(items)
-    {   console.log('Stopping all animations!');
-        list.each(function(){
-            var $me = $(this),
-                data = $me.data(namespace);
-            data.isStopped = true;
+    {   return $.each(items,function(){
+            var d = $(this).data(ns);
+            if (d instanceof Sonic.Animation)
+                d.stop();
         });
     };
     
-    var draw = function (data) 
-    {   var f = data.frame,
-            max = data.maxFrames,
-            c2d = data.context,
-            cache = data.cache;
-    // Init frames
-        if (!f) data.frame = 0;
-    // Clear the image entirely
-        c2d.clearRect(0, 0, data.fullWidth, data.fullWidth);
-    // If frame is cached, draw immediately
-        if (f in cache)
-            c2d.putImageData(cache[f], 0, 0)
-    // Otherwise draw the frame manually
-        else data.cache[f] = drawFrame(data);
-        
-    // Increment the frame and store it.
-        if (++data.frame >= max) 
-            data.frame = 0;
-    };
-    
-    var drawFrame = function (options) 
-    {   var f = options.frame,
-            c2d = options.context;
-    // Image Properties
-        var w = options.fullWidth, 
-            h = options.fullHeight;
-            
-        c2d.globalAlpha = options.alpha;
-        var pts = 0,
-            ptDistance = 0;
-        if (options.trail)
-        {   pts = options.trail.points + 1;
-            ptDistance = (options.trail.length / options.length) / pts;
-        }
-        var curProgress = f / options.maxFrames;
-        var ptProgress, modTrail;
-        $.each(options.points, function() {
-        for (var pt = 0, a = pts; pt++ < a  && !options.isStopped;)
-        {   ptProgress = curProgress - ((a - pt) * ptDistance);
-            if (ptProgress < 0)
-                ptProgress = ptProgress + 1;
-            modTrail = (pt / a);
-            c2d.globalAlpha = (pt / a) * options.alpha;
-            if (this.color)
-            {   c2d.fillStyle = this.color;
-                c2d.strokeStyle = this.color;
-            }
-        // Default to global color
-            else
-            {   c2d.fillStyle = options.color;
-                c2d.fillStyle = options.color;
-            }
-            //options.preStep();
-            if (this.paths)
-            {   this.path = this.paths;
-                if (typeof this.paths == 'function')
-                    this.paths(options, ptProgress, this, modTrail);
-                else if (typeof this.paths == 'object')
-                {   var doThis = getNamedPath(this.paths.name);
-                    if (typeof doThis == 'function')
-                        doThis(options, ptProgress, this, modTrail);
-                }
-            }
-        // Default to global Step() function
-            else
-                options.step(options,ptProgress, this, modTrail);
-        }
-        });
-        //options.teardown();
-    // Cache the image
-        return c2d.getImageData(0, 0, w, h);
-    };
-
-/* jQuery Methods
-   ---------------------------------------------------- */
-/* These methods simply point to the appropriate working 
-   methods.
-*/
-    var methods = {
-        init: function (options) {
-            var jQ = $,
-                link = jQFind(this, true);
-        // Default Settings... so that Sonic always works
-            options = $.extend(defCanvas,options);
-            if (options.trail)
-                options.trail = $.extend(defTrail,options.trail);
-        // Add the new links
-            link.play = jQPlay;
-            link.stop = jQStop;
-            tmpItems = link;
-        // Add the loaders
-            return $.each(link, function () 
-            {//Key savers
-                var me = this,
-                    $me = $(this),
-                    data = $me.data(namespace);
-                
-            // If the plugin hasn't been initialized yet
-                if (!data) 
-                {//Clone options and attach to canvas
-                    $me.data(namespace, $.extend({}, options));
-                // Save Keystrokes
-                    data = $me.data(namespace);
-                    if (typeof data.step != 'function')
-                        data.step = getPathStep(data.path);
-                    data.context = me.getContext("2d");
-                    data.fullWidth = data.width + 2 * data.padding;
-                    data.fullHeight = data.height + 2 * data.padding;
-                    data.play = function(){};
-                    $me.attr('height', data.fullHeight);
-                    $me.attr('width', data.fullWidth);
-                }
-            });
-        },
-        play: function () {
-            console.log('jQuery just played me');
-            var list = jQFind(this, false);
-            return jQPlay(list);
-        },
-        stop: function () { 
-            console.log('jQuery just played me');
-            var list = jQFind(this, false);
-            return jQStop(list);
-        },
-        play: function(){}
-    };
-    
-// Creates and Returns a new Sonic Canvas
-    $.Sonic = function(options, create) {
-        console.log(options instanceof $);
-        if (typeof options == 'object')
-        {   if (options instanceof $)
-            {   var list = jQFind(options, create);
-                list.play = function(){}
-                return list;
-            }
-            else 
-            {   options = $.extend(defCanvas,options);
-                var me = document.createElement('canvas');
-                $(me).addClass(options.domClass);
-                $(me).data(namespace, options);
-                return $(me);
-            }
-        }
-    };
-   
-    
-    $.fn.Sonic = function (method) {
-        if (methods[method]) {
-            return methods[method].apply(this, Array.prototype.slice.call(arguments, 1));
-        } else if (typeof method === 'object' || !method) {
-            return methods.init.apply(this, arguments);
-        } else {
-            $.error('Method ' + method + ' does not exist on jQuery.tooltip');
-        }
-    };
-    $.fn.Sonic.play = function(items) {};
-
 /* Helper Methods
    ---------------------------------------------------- */
 /* Finds the Sonic objects in the given list. */
@@ -347,20 +548,5 @@
         });
         return list;
     };
-    
-    var getNamedPath = function(name)
-    {   if (name)
-        {   if (name == 'line')
-                return paths.line;
-            else if (name == 'arc')
-                return paths.arc;
-            else if (name == 'bezier')
-                return paths.bezier;
-        }
-    }
-    
-    var getPathStep = function(path)
-    {
-        
-    };
-}(jQuery));
+}
+(window.Sonic = window.Sonic || function(){}, jQuery));
