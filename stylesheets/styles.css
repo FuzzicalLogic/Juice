@@ -195,6 +195,14 @@ section#body h1 {
   color: white;
   margin-bottom: .75em;
 }
+
+section#demos div {
+  padding-left:.5em;
+}
+
+canvas.demo { width:50px; height:50px; }
+canvas.long.demo { width:450px; height:6px; }
+
 small {
   font-size:11px;
 }
