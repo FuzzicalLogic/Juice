@@ -180,10 +180,11 @@ header p.view small {
   display:inline-block;
 }
 
-section {
+section#body
+{   
   width:500px;
-  float:right;
-  padding-bottom:50px;
+  margin-left: 350px;
+  padding-bottom:2em;
 }
 
 section#body h1 {
