@@ -143,7 +143,7 @@ header li {
 header ul a {
   width:100%;
   line-height:1;
-  font-size:1.1em;
+  font-size:.85em;
   font-weight:bold;
   color:#EEE;
   display:inline;
