@@ -1,5 +1,6 @@
 (function (S,$)
-{   var ns = 'Sonic';
+{   "use strict";
+    var ns = 'Juice';
 /* Convenience variables (Mostly for saving keystrokes)
 ---------------------------------------------------- */
     var NIL = function(){};
@@ -22,12 +23,12 @@
                 _.isStopped = false;
             // Clear the timer, in case of multiple play()s
                 if (_.timer)
-                    clearInterval(_.timer);
+                {    clearInterval(_.timer);}
             // Begin drawing
                 _.timer = setInterval(
                     function() {
-                        if (!(_.isStopped)) _.draw();
-                        else  clearInterval(_.timer);
+                        if (!(_.isStopped)) {_.draw();}
+                        else { clearInterval(_.timer);}
                     }, 
                     1e3 / fps
                 );    
@@ -36,7 +37,7 @@
                 this.isStopped = false;
             // Clear the timer, in case of multiple play()s
                 if (this.timer)
-                    clearInterval(this.timer);
+                {    clearInterval(this.timer);}
             },
 
             draw: function () 
@@ -47,12 +48,12 @@
                     cache = _.cache;
                 
             // Init frames
-                if (!f) _.frame = 0;
+                if (!f) {_.frame = 0;}
             // Clear the image entirely
-                c2d.clearRect(0, 0, _.fullWidth, _.fullWidth);
+                c2d.clearRect(0, 0, _.wFull, _.hFull);
             // If frame is cached, draw immediately
                 if (f in cache)
-                    c2d.putImageData(cache[f], 0, 0)
+                {    c2d.putImageData(cache[f], 0, 0);}
             // Otherwise draw the frame manually
                 else _.cache[f] = _.drawFrame();
                 
@@ -61,7 +62,7 @@
                 {   _.loops++;
                     _.frame = 0;
                     if (_.onLoop)
-                        _.onLoop(_.loops);
+                    {    _.onLoop(_.loops);}
                 }
             },
             
@@ -70,11 +71,11 @@
                     f = _.frame,
                     c2d = _.context;
             // Image Properties
-                var w = _.fullWidth, 
-                    h = _.fullHeight;
+                var w = _.wFull, 
+                    h = _.hFull;
                     
                 c2d.globalAlpha = _.alpha;
-                $.each(_.points, function() {
+                $.each(this.points, function() {
                     this.draw(f / _.maxFrames);
                 });
                 //options.teardown();
@@ -87,15 +88,16 @@
     (S, S.Animation = S.Animation || 
         function(data) 
         {//Initialize
-            var d = !data ? {} : data;
+            var l, i, trl, pts,
+                d = !data ? {} : data;
         // Set defaults... the hard way!
             this.cssID = !d.cssID ? null : d.cssID;
             this.cssClass = !d.cssClass ? ns : d.cssClass;
-            this.width  = !d.width  ? 50 : d.width;
-            this.height = !d.height ? 50 : d.height;
+            this.w  = !d.w  ? 50 : d.w;
+            this.h = !d.h ? 50 : d.h;
             this.padding = !d.padding ? 0 : d.padding;
-            this.fullWidth = this.width + 2 * this.padding;
-            this.fullHeight = this.height + 2 * this.padding;
+            this.wFull = this.w + 2 * this.padding;
+            this.hFull = this.h + 2 * this.padding;
         // Animation Defaults
             this.cache = [];
             this.context = !d.context ? null : d.context;
@@ -106,20 +108,18 @@
             this.ptSize = !d.ptSize ? 10 : d.ptSize;
         // Animation Functions
             this.setup = !d.setup ? NIL : d.setup;
-            //this.preStep = !d.preStep ? NIL : d.preStep;
-            //this.teardown = !d.teardown ? NIL : d.teardown;
-            //this.complete = !d.complete ? NIL : d.complete;
-            this.onLoop = !d.onLoop ? NIL : d.onLoop;
+            this.onSetup = !d.onSetup ? NIL : d.onSetup;
+            this.onLoop  = !d.onLoop  ? NIL : d.onLoop;
         // Child Objects w/o Siblings
             trl = !d.trail ? {} : d.trail;
-            this.trail = new Sonic.Trail(trl);
+            this.trail = new Juice.Trail(trl);
         // Child Objects w/ Siblings
             this.points = [];
             pts = !d.points ? [{}] : d.points;
-            var l = pts.length;
-            for (var i = 0; i < l; i++) 
+            l = pts.length;
+            for (i = 0; i < l; i++) 
             {// Create the new element...
-                this.points[i] = new Sonic.Point(this, pts[i]);
+                this.points[i] = new Juice.Point(this, pts[i]);
             }
         // Return the results            
             return this;
@@ -138,20 +138,20 @@
             for (var pt = 0, a = t.points + 1; pt++ < a  && !_.isStopped;)
             {   ptProgress = p - ((a - pt) * t.distance);
                 if (ptProgress < 0)
-                    ptProgress = ptProgress + 1;
+                {    ptProgress = ptProgress + 1;}
                 this.modifier = (pt / a);
                //options.preStep();
                 if (this.paths)
                 {   _.path = _.paths;
                     if (typeof _.paths == 'function')
-                        _.paths(ptProgress, _);
+                    {    _.paths(ptProgress, _);}
                     else if (typeof _.paths == 'object')
                     {   _.paths.draw(ptProgress, _);
                     }
                 }
             // Default to global Step() function
                 else
-                    ;//_.step(ptProgress, this);
+                {    ;}//_.step(ptProgress, this);
             }
         };
         P.prototype.canFade = function() {
@@ -162,7 +162,7 @@
         };
         P.prototype.onDestroy = function() {
             if (this.Animation)
-                this.Animation = null;
+            {    this.Animation = null;}
         };
     // Round Point Objects
         (function(P,C)
@@ -174,21 +174,24 @@
         // New/Overridden Functions
             C.prototype.render = function(x,y) 
             {//ERROR:No Context
-                if (this.Animation)
-                    if (this.Animation.context)
-                        c2d = this.Animation.context;
-                    else console.log('Invalid Canvas Context2D');
-                else console.log('This Point has no Animation');
+                var c2d, s, a,
+                    A = this.Animation;
+                if (A)
+                {   if (A.context)
+                    {    c2d = A.context;}
+                    else {console.log('Invalid Canvas Context2D');}
+                }
+                else {console.log('This Point has no Animation');}
             // Initialize
                 x = !x ? 0 : x;
                 y = !y ? 0 : y;
-                var s = !(this.ptSize) ? 1 : this.ptSize;
-                var a = s / 2;
+                s = !(this.ptSize) ? 1 : this.ptSize;
+                a = s / 2;
             // Account for Trailing
                 if (this.canResize())
-                    s = s * this.modifier;
+                {    s = s * this.modifier;}
                 if (this.canFade())
-                    c2d.globalAlpha = this.alpha * this.modifier;
+                {    c2d.globalAlpha = this.alpha * this.modifier;}
             // Draw the Point
                 c2d.fillStyle = this.color;
                 c2d.beginPath();
@@ -202,16 +205,16 @@
             {//Initialize
                 var d = !data ? {} : data;
             // Set the parent appropriately
-                if (anim) this.Animation = anim;
+                if (anim) {this.Animation = anim;}
             // Set defaults... the hard way!
                 this.ptSize  = !d.size  ? anim.ptSize  : d.size;
                 this.color = d.color ? d.color : anim.color;
                 this.alpha = d.alpha ? d.alpha : anim.alpha;
-                this.paths = new Sonic.Path(anim, d.paths);
+                this.paths = new Juice.Path(anim, d.paths);
             // Possible Siblings Objects Last
                 this.trail = (!d.trail) 
-                         ? new Sonic.Trail(anim.trail) 
-                         : new Sonic.Trail(d.trail);
+                         ? new Juice.Trail(anim.trail) 
+                         : new Juice.Trail(d.trail);
                 if (this.trail)
                 {   var t = this.trail, a = this.Animation;
                     this.trail.distance = (t.length / a.length) / (t.points + 1);
@@ -230,21 +233,24 @@
         // New/Overridden Functionality
             R.prototype.render = function(x,y) 
             {//ERROR:No Context
-                if (this.Animation)
-                    if (this.Animation.context)
-                        c2d = this.Animation.context;
-                    else console.log('Invalid Canvas Context2D');
-                else console.log('This Point has no Animation');
+                var c2d, s, a,
+                    A = this.Animation;
+                if (A)
+                {   if (A.context)
+                    {    c2d = A.context;}
+                    else {console.log('Invalid Canvas Context2D');}
+                }
+                else {console.log('This Point has no Animation');}
             // Initialize
                 x = !x ? 0 : x;
                 y = !y ? 0 : y;
-                var s = !this.ptSize ? 1 : this.ptSize;
-                var a = s / 2;
+                s = !this.ptSize ? 1 : this.ptSize;
+                a = s / 2;
             // Account for Trailing
                 if (this.canResize())
-                    s = s * this.modifier;
+                {    s = s * this.modifier;}
                 if (this.canFade())
-                    c2d.globalAlpha = this.alpha * this.modifier;
+                {    c2d.globalAlpha = this.alpha * this.modifier;}
             // Draw the Point
                 c2d.fillStyle = this.color;
                 c2d.fillRect(x-a,y-a,s,s);
@@ -255,16 +261,16 @@
             {//Initialize
                 var d = !data ? {} : data;
             // Set the parent appropriately
-                if (anim) this.Animation = anim;
+                if (anim) {this.Animation = anim;}
             // Set defaults... the hard way!
                 this.ptSize  = !d.size ? anim.ptSize : d.size;
                 this.color = d.color ? d.color : anim.color;
                 this.alpha = d.alpha ? d.alpha : anim.alpha;
-                this.paths = new Sonic.Path(anim, d.paths);
+                this.paths = new Juice.Path(anim, d.paths);
             // Possible Siblings Objects Last
                 this.trail = (!d.trail) 
-                         ? new Sonic.Trail(anim.trail) 
-                         : new Sonic.Trail(d.trail);
+                         ? new Juice.Trail(anim.trail) 
+                         : new Juice.Trail(d.trail);
                 if (this.trail)
                 {   var t = this.trail, a = this.Animation;
                     this.trail.distance = (t.length / a.length) / (t.points + 1);
@@ -281,9 +287,9 @@
         // Get the right kind of Point
             this.type = !d.type ? 'rect': d.type;
             if (this.type == 'round')
-                return new S.Point.Round(anim, data);
+            {    return new S.Point.Round(anim, data);}
             else
-                return new S.Point.Rect(anim, data);
+            {    return new S.Point.Rect(anim, data);}
         }
     ));
     
@@ -308,45 +314,45 @@
     (function(S,P)
     {
         (function(P,L)
-        {   L.prototype.draw = function (progress, pt) {
-                var x = this.startX + ((this.endX - this.startX) * progress),
-                    y = this.startY + ((this.endY - this.startY) * progress);
+        {   L.prototype.draw = function (p, pt) {
+                var x = this.x1 + ((this.x2 - this.x1) * p),
+                    y = this.y1 + ((this.y2 - this.y1) * p);
                 pt.render(x,y);
             };
         
         }(P, P.Line = P.Line 
         ||  function(anim, data) 
             {   var d = !data ? {} : data;
-                this.startX = d.startX;
-                this.startY = d.startY;
-                this.endX = d.endX;
-                this.endY = d.endY;
+                this.x1 = !d.x1 ? 0 : d.x1;
+                this.y1 = !d.y1 ? anim.h / 2 : d.y2;
+                this.x2 = !d.x2 ? anim.w : d.x2;
+                this.y2 = !d.y2 ? anim.h / 2 : d.y2;
                 return this;
             }
         ));
         (function(P,A)
         {   A.prototype.draw = function (progress, pt) {
-                var ctrX    = this.ctrX,
-                    ctrY    = this.ctrY,
+                var x    = this.x,
+                    y    = this.y,
                     adj     = pt.ptSize / 2,
-                    r       = this.radius - adj,
+                    r       = this.r - adj,
                     start   = this.start,
                     end     = this.end;
                     
                 var angle = Math.PI * (end + (progress * (start - end))) / 180,
-                    x = r * Math.sin(angle) + ctrX;
-                    y = r * Math.cos(angle) + ctrY;
+                    x = r * Math.sin(angle) + x,
+                    y = r * Math.cos(angle) + y;
                 pt.render(x,y);
             };
         
         }(P, P.Arc = P.Arc 
         ||  function(anim, data) 
             {   var d = !data ? {} : data;
-                this.ctrX = d.ctrX;
-                this.ctrY = d.ctrY;
-                this.radius = d.radius;
-                this.start = d.start;
-                this.end = d.end;
+                this.x = !d.ctrX ? anim.w / 2 : d.ctrX;
+                this.y = !d.ctrY ? anim.h / 2 : d.ctrY;
+                this.r = !d.radius ? ((anim.w > anim.h) ? anim.w / 2 : anim.h / 2) : d.radius;
+                this.start = !d.start ? 0 : d.start;
+                this.end = !d.end ? 360 : d.end;
                 return this;
             }
         ));
@@ -407,37 +413,37 @@
         // Get the right kind of Point
             me.name = !d.name ? '': d.name;
             if (me.name == 'line')
-                return new Sonic.Path.Line(anim, data);
+            {    return new Juice.Path.Line(anim, data);}
             else if (me.name == 'arc')
-                return new Sonic.Path.Arc(anim, data);
+            {    return new Juice.Path.Arc(anim, data);}
             else if (me.name == 'bezier')
-                return new Sonic.Path.Bezier(anim, data);
+            {    return new Juice.Path.Bezier(anim, data);}
             else if (me.name == 'ellipse')
-                return new Sonic.Path.Ellipse(anim, data);
+            {    return new Juice.Path.Ellipse(anim, data);}
         }
     ));
     
     if ($)
-    {// Sonic Namespace in $
+    {// Juice Namespace in $
         (function(S,$)
-        {   S.Animation = Sonic.Animation;
+        {   S.Animation = Juice.Animation;
             S.play = function(items)
             {   return $(items).each(function()
                 {   var d = $(this).data(ns);
-                    if (d instanceof Sonic.Animation)
-                        d.play();
+                    if (d instanceof Juice.Animation)
+                    {    d.play();}
                 });
             }
             S.stop = function(items)
             {   return $(items).each(function()
                 {   var d = $(this).data(ns);
-                    if (d instanceof Sonic.Animation)
-                        d.stop();
+                    if (d instanceof Juice.Animation)
+                    {    d.stop();}
                 });
             }
         }
-        ($.Sonic = $.Sonic || function(){return this.each(function(){return this;});}, $)); 
-    //Sonic Namespace in $.fn
+        ($.Juice = $.Juice || function(){return this.each(function(){return this;});}, $)); 
+    //Juice Namespace in $.fn
         (function(S,fn)
         {   
             S.methods = {
@@ -453,17 +459,17 @@
                     {//Key savers
                         var me = this,
                             $me = $(this),
-                            data = $me.data(ns);
+                            d = $me.data(ns);
                         
                     // If the plugin hasn't been initialized yet
-                        if (!data) 
+                        if (!d) 
                         {//Clone options and attach to canvas
                             options.context = me.getContext('2d');
-                            $me.data(ns, new Sonic.Animation(options));
+                            $me.data(ns, new Juice.Animation(options));
                         // Save Keystrokes
-                            data = $me.data(ns);
-                            $me.attr('height', data.fullHeight);
-                            $me.attr('width', data.fullWidth);
+                            d = $me.data(ns);
+                            $me.attr('height', d.hFull);
+                            $me.attr('width', d.wFull);
                         }
                     });
                     var $link = $(link);
@@ -483,9 +489,9 @@
             S.stop = function() { return jQStop(this.jQCache); }
         }
         
-        ($.fn.Sonic = $.fn.Sonic || function (method)
-        {   var ns = $.fn.Sonic;
-            var fn = $.fn.Sonic.methods;
+        ($.fn.Juice = $.fn.Juice || function (method)
+        {   var ns = $.fn.Juice;
+            var fn = $.fn.Juice.methods;
             
             if (fn[method]) 
             {
@@ -510,36 +516,36 @@
 
 /* Actual Working Methods for the jQuery Plugin
    ---------------------------------------------------- */
-/* Plays the list of Sonic Canvases. */
+/* Plays the list of Juice Canvases. */
     var jQPlay = function(items)
     {   if (typeof items == 'undefined')
-            items = tmpItems;
+        {    items = tmpItems;}
         return $.each(items, function () {
             var d = $(this).data(ns);
-            if (d instanceof Sonic.Animation)
-                d.play();
+            if (d instanceof Juice.Animation)
+            {    d.play();}
        });
     };
     
-/* Stops the list of Sonic Canvases. */
+/* Stops the list of Juice Canvases. */
     var jQStop = function(items)
     {   return $.each(items,function(){
             var d = $(this).data(ns);
-            if (d instanceof Sonic.Animation)
-                d.stop();
+            if (d instanceof Juice.Animation)
+            {    d.stop();}
         });
     };
     
 /* Helper Methods
    ---------------------------------------------------- */
-/* Finds the Sonic objects in the given list. */
+/* Finds the Juice objects in the given list. */
     var jQFind = function(items, addMissing)
     {   var list = [];
         items.each(function()
         {   if($(this).prop('tagName') != 'CANVAS')
             {   if (addMissing)
                 {   var a = document.createElement('canvas');
-                    $(a).addClass('Sonic');
+                    $(a).addClass('Juice');
                     $(this).prepend($(a));
                     list.push(a);
                 }
@@ -549,4 +555,4 @@
         return list;
     };
 }
-(window.Sonic = window.Sonic || function(){}, jQuery));
+(window.Juice = window.Juice || function(){}, jQuery));
