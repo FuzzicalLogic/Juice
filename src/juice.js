@@ -2,53 +2,42 @@
 {   "use strict";
     var ns = 'Juice';
 /* Convenience variables (Mostly for saving keystrokes)
----------------------------------------------------- */
+   ---------------------------------------------------- */
     var NIL = function(){};
+ 
 //Animation Namespace
     (function(S, A)
     {   var namespace = ns + '.Animation';
-    
         A.prototype = {
             play: function() {
                 var _ = this;
                     console.log(_);
                 var fps = _.fps,
-                    len = _.length,
-                    sec = 1e3,
-                    nFrames = fps * (len / sec);
-                _.maxFrames = nFrames;
+                    len = _.length;
             // Setup the animation
                 _.setup(_);
                 _.loops = 0;
                 _.isStopped = false;
-            // Clear the timer, in case of multiple play()s
-                if (_.timer)
-                {    clearInterval(_.timer);}
             // Begin drawing
-                _.timer = setInterval(
-                    function() {
-                        if (!(_.isStopped)) {_.draw();}
-                        else { clearInterval(_.timer);}
-                    }, 
-                    1e3 / fps
-                );    
+                setTimeout(function(){_.draw()}, 1e3 / fps);
             },
             stop: function() {
-                this.isStopped = false;
-            // Clear the timer, in case of multiple play()s
-                if (this.timer)
-                {    clearInterval(this.timer);}
+                this.isStopped = true;
             },
 
             draw: function () 
             {   var _ = this,
                     f = _.frame,
+                    fps = _.fps,
+                    len = _.length,
                     max = _.maxFrames,
                     c2d = _.context,
                     cache = _.cache;
                 
+               
             // Init frames
                 if (!f) {_.frame = 0;}
+                _.maxFrames = fps * (len / 1e3);
             // Clear the image entirely
                 c2d.clearRect(0, 0, _.wFull, _.hFull);
             // If frame is cached, draw immediately
@@ -62,8 +51,11 @@
                 {   _.loops++;
                     _.frame = 0;
                     if (_.onLoop)
-                    {    _.onLoop(_.loops);}
+                    {    _.onLoop(_, _.loops);}
                 }
+            // Set the next frame...
+                if (!(_.isStopped))
+                    setTimeout(function(){_.draw()}, 1e3 / fps);
             },
             
             drawFrame: function () 
@@ -75,7 +67,7 @@
                     h = _.hFull;
                     
                 c2d.globalAlpha = _.alpha;
-                $.each(this.points, function() {
+                $.each(_.points, function() {
                     this.draw(f / _.maxFrames);
                 });
                 //options.teardown();
@@ -88,41 +80,43 @@
     (S, S.Animation = S.Animation || 
         function(data) 
         {//Initialize
+            var PT = Juice.Point;
             var l, i, trl, pts,
+                _ = this,
                 d = !data ? {} : data;
         // Set defaults... the hard way!
-            this.cssID = !d.cssID ? null : d.cssID;
-            this.cssClass = !d.cssClass ? ns : d.cssClass;
-            this.w  = !d.w  ? 50 : d.w;
-            this.h = !d.h ? 50 : d.h;
-            this.padding = !d.padding ? 0 : d.padding;
-            this.wFull = this.w + 2 * this.padding;
-            this.hFull = this.h + 2 * this.padding;
+            _.cssID = !d.cssID ? null : d.cssID;
+            _.cssClass = !d.cssClass ? ns : d.cssClass;
+            _.w  = !d.w  ? 50 : d.w;
+            _.h = !d.h ? 50 : d.h;
+            _.padding = !d.padding ? 0 : d.padding;
+            _.wFull = _.w + 2 * _.padding;
+            _.hFull = _.h + 2 * _.padding;
         // Animation Defaults
-            this.cache = [];
-            this.context = !d.context ? null : d.context;
-            this.length = !d.length ? 1000 : d.length;
-            this.fps = !d.fps ? 30 : d.fps;
-            this.alpha = !d.alpha ? 1 : d.alpha;
+            _.cache = [];
+            _.context = !d.context ? null : d.context;
+            _.length = !d.length ? 1000 : d.length;
+            _.fps = !d.fps ? 30 : d.fps;
+            _.alpha = !d.alpha ? 1 : d.alpha;
         // Global Fallbacks
-            this.ptSize = !d.ptSize ? 10 : d.ptSize;
+            _.ptSize = !d.ptSize ? 10 : d.ptSize;
         // Animation Functions
-            this.setup = !d.setup ? NIL : d.setup;
-            this.onSetup = !d.onSetup ? NIL : d.onSetup;
-            this.onLoop  = !d.onLoop  ? NIL : d.onLoop;
+            _.setup = !d.setup ? NIL : d.setup;
+            _.onSetup = !d.onSetup ? NIL : d.onSetup;
+            _.onLoop  = !d.onLoop  ? NIL : d.onLoop;
         // Child Objects w/o Siblings
             trl = !d.trail ? {} : d.trail;
-            this.trail = new Juice.Trail(trl);
+            _.trail = new Juice.Trail(trl);
         // Child Objects w/ Siblings
-            this.points = [];
+            _.points = [];
             pts = !d.points ? [{}] : d.points;
             l = pts.length;
             for (i = 0; i < l; i++) 
             {// Create the new element...
-                this.points[i] = new Juice.Point(this, pts[i]);
+                _.points[i] = new PT(_, pts[i]);
             }
         // Return the results            
-            return this;
+            return _;
         }
     ));
     
@@ -132,16 +126,19 @@
     // Inherited Functions
         P.prototype.draw = function(p) 
         {//Initialize
-            var _ = this, 
+            var pt, n,
+                _ = this, 
                 t = _.trail,
-                ptProgress = 0;
-            for (var pt = 0, a = t.points + 1; pt++ < a  && !_.isStopped;)
-            {   ptProgress = p - ((a - pt) * t.distance);
+                A = _.Animation,
+                ptProgress = 0,
+                d = (t.length / A.length) / (t.points + 1);
+            
+            for (pt = 0, n = t.points + 1; pt++ < n  && !_.isStopped;)
+            {   ptProgress = p - ((n - pt) * d);
                 if (ptProgress < 0)
                 {    ptProgress = ptProgress + 1;}
-                this.modifier = (pt / a);
-               //options.preStep();
-                if (this.paths)
+                _.modifier = (pt / n);
+                if (_.paths)
                 {   _.path = _.paths;
                     if (typeof _.paths == 'function')
                     {    _.paths(ptProgress, _);}
@@ -203,24 +200,21 @@
         (P, P.Round = P.Round 
         ||  function(anim, data)
             {//Initialize
-                var d = !data ? {} : data;
+                var _ = this,
+                    d = !data ? {} : data;
             // Set the parent appropriately
                 if (anim) {this.Animation = anim;}
             // Set defaults... the hard way!
-                this.ptSize  = !d.size  ? anim.ptSize  : d.size;
-                this.color = d.color ? d.color : anim.color;
-                this.alpha = d.alpha ? d.alpha : anim.alpha;
-                this.paths = new Juice.Path(anim, d.paths);
+                _.ptSize  = !d.size  ? anim.ptSize  : d.size;
+                _.color = d.color ? d.color : anim.color;
+                _.alpha = d.alpha ? d.alpha : anim.alpha;
+                _.paths = new Juice.Path(anim, d.paths);
             // Possible Siblings Objects Last
-                this.trail = (!d.trail) 
-                         ? new Juice.Trail(anim.trail) 
-                         : new Juice.Trail(d.trail);
-                if (this.trail)
-                {   var t = this.trail, a = this.Animation;
-                    this.trail.distance = (t.length / a.length) / (t.points + 1);
-                }
+                _.trail = (!d.trail) 
+                         ? anim.trail 
+                         : new T(d.trail);
             // Return the results            
-                return this;
+                return _;
             }
         ));
     // Rectangular Point Objects
@@ -259,24 +253,21 @@
         (P, P.Rect = P.Rect 
         ||  function(anim, data) 
             {//Initialize
-                var d = !data ? {} : data;
+                var _ = this,
+                    d = !data ? {} : data;
             // Set the parent appropriately
-                if (anim) {this.Animation = anim;}
+                if (anim) {_.Animation = anim;}
             // Set defaults... the hard way!
-                this.ptSize  = !d.size ? anim.ptSize : d.size;
-                this.color = d.color ? d.color : anim.color;
-                this.alpha = d.alpha ? d.alpha : anim.alpha;
-                this.paths = new Juice.Path(anim, d.paths);
+                _.ptSize  = !d.size ? anim.ptSize : d.size;
+                _.color = d.color ? d.color : anim.color;
+                _.alpha = d.alpha ? d.alpha : anim.alpha;
+                _.paths = new Juice.Path(anim, d.paths);
             // Possible Siblings Objects Last
-                this.trail = (!d.trail) 
-                         ? new Juice.Trail(anim.trail) 
-                         : new Juice.Trail(d.trail);
-                if (this.trail)
-                {   var t = this.trail, a = this.Animation;
-                    this.trail.distance = (t.length / a.length) / (t.points + 1);
-                }
+                _.trail = (!d.trail) 
+                         ? new T(anim.trail) 
+                         : new T(d.trail);
             // Return the results            
-                return this;
+                return _;
             }
         ));
     }
@@ -312,32 +303,34 @@
     ));
     
     (function(S,P)
-    {
-        (function(P,L)
+    {   (function(P,L)
         {   L.prototype.draw = function (p, pt) {
-                var x = this.x1 + ((this.x2 - this.x1) * p),
-                    y = this.y1 + ((this.y2 - this.y1) * p);
+                var _ = this,
+                    x = _.x1 + ((_.x2 - _.x1) * p),
+                    y = _.y1 + ((_.y2 - _.y1) * p);
                 pt.render(x,y);
             };
         
         }(P, P.Line = P.Line 
         ||  function(anim, data) 
-            {   var d = !data ? {} : data;
-                this.x1 = !d.x1 ? 0 : d.x1;
-                this.y1 = !d.y1 ? anim.h / 2 : d.y2;
-                this.x2 = !d.x2 ? anim.w : d.x2;
-                this.y2 = !d.y2 ? anim.h / 2 : d.y2;
+            {   var _ = this,
+                    d = !data ? {} : data;
+                _.x1 = !d.x1 ? 0 : d.x1;
+                _.y1 = !d.y1 ? anim.h / 2 : d.y2;
+                _.x2 = !d.x2 ? anim.w : d.x2;
+                _.y2 = !d.y2 ? anim.h / 2 : d.y2;
                 return this;
             }
         ));
         (function(P,A)
         {   A.prototype.draw = function (progress, pt) {
-                var x    = this.x,
-                    y    = this.y,
+                var _ = this,
+                    x    = _.x,
+                    y    = _.y,
                     adj     = pt.ptSize / 2,
-                    r       = this.r - adj,
-                    start   = this.start,
-                    end     = this.end;
+                    r       = _.r - adj,
+                    start   = _.start,
+                    end     = _.end;
                     
                 var angle = Math.PI * (end + (progress * (start - end))) / 180,
                     x = r * Math.sin(angle) + x,
@@ -347,13 +340,14 @@
         
         }(P, P.Arc = P.Arc 
         ||  function(anim, data) 
-            {   var d = !data ? {} : data;
-                this.x = !d.ctrX ? anim.w / 2 : d.ctrX;
-                this.y = !d.ctrY ? anim.h / 2 : d.ctrY;
-                this.r = !d.radius ? ((anim.w > anim.h) ? anim.w / 2 : anim.h / 2) : d.radius;
-                this.start = !d.start ? 0 : d.start;
-                this.end = !d.end ? 360 : d.end;
-                return this;
+            {   var _ = this,
+                    d = !data ? {} : data;
+                _.x = !d.x ? anim.w / 2 : d.x;
+                _.y = !d.y ? anim.h / 2 : d.y;
+                _.r = !d.r ? ((anim.w > anim.h) ? anim.w / 2 : anim.h / 2) : d.r;
+                _.start = !d.start ? 0 : d.start;
+                _.end = !d.end ? 360 : d.end;
+                return _;
             }
         ));
         (function(P,E)
@@ -366,22 +360,23 @@
             }
         ));
         (function(P,B)
-        {   B.prototype.draw = function (progress, pt) 
+        {   B.prototype.draw = function (p, pt) 
             {   var adj = pt.ptSize / 2;
                     
-                var p1x = this.startX,
-                    p1y = this.startY,
-                    p2x = this.endX,
-                    p2y = this.endY,
-                    cp1x = this.cp1x,
-                    cp1y = this.cp1y,
-                    cp2x = this.cp2x,
-                    cp2y = this.cp2y;
+                var _ = this,
+                    p1x = _.startX,
+                    p1y = _.startY,
+                    p2x = _.endX,
+                    p2y = _.endY,
+                    cp1x = _.cp1x,
+                    cp1y = _.cp1y,
+                    cp2x = _.cp2x,
+                    cp2y = _.cp2y;
                 
-                var h = (1 - progress) * (1 - progress) * (1 - progress),
-                    p = 3 * (1 - progress) * (1 - progress) * progress,
-                    d = 3 * (1 - progress) * progress * progress,
-                    v = progress * progress * progress;
+                var h = (1 - p) * (1 - p) * (1 - p),
+                    p = 3 * (1 - p) * (1 - p) * p,
+                    d = 3 * (1 - p) * p * p,
+                    v = p * p * p;
                     
                 var x = h * p1x + p * cp1x + d * cp2x + v * p2x,
                     y = h * p1y + p * cp1y + d * cp2y + v * p2y;
@@ -390,16 +385,17 @@
             };
         }(P, P.Bezier = P.Bezier 
         ||  function(anim, data) 
-            {   d = !data ? {} : data;
-                this.startX = d.startX;
-                this.startY = d.startY;
-                this.endX = d.endX;
-                this.endY = d.endY;
-                this.cp1x = d.cp1x;
-                this.cp1y = d.cp1y;
-                this.cp2x = d.cp2x;
-                this.cp2y = d.cp2y;
-                return this;
+            {   var _ = this,
+                    d = !data ? {} : data;
+                _.startX = d.startX;
+                _.startY = d.startY;
+                _.endX = d.endX;
+                _.endY = d.endY;
+                _.cp1x = d.cp1x;
+                _.cp1y = d.cp1y;
+                _.cp2x = d.cp2x;
+                _.cp2y = d.cp2y;
+                return _;
             }
         ));
         
@@ -422,73 +418,78 @@
             {    return new Juice.Path.Ellipse(anim, data);}
         }
     ));
+ 
+/* Sub-Namespaces (all should be created by now)
+   ---------------------------------------------------- */
+    var A = Juice.Animation;
+    var PT = Juice.Point;
+    var P = Juice.Path;
+    var T = Juice.Trail;
     
     if ($)
-    {// Juice Namespace in $
+    {//Alias - data()
+        var d = function(jq,o){ 
+            if (typeof o === 'object')
+                return $(jq).data(ns,o);
+            else return $(jq).data(ns);
+        };
+    // Alias - instanceof
+        var isQ = function(chk) {return chk instanceof $;};
+        var isJ = function(chk) {return chk instanceof A;};
+
+    // Juice Namespace in $
         (function(S,$)
-        {   S.Animation = Juice.Animation;
-            S.play = function(items)
-            {   return $(items).each(function()
-                {   var d = $(this).data(ns);
-                    if (d instanceof Juice.Animation)
-                    {    d.play();}
-                });
-            }
-            S.stop = function(items)
-            {   return $(items).each(function()
-                {   var d = $(this).data(ns);
-                    if (d instanceof Juice.Animation)
-                    {    d.stop();}
-                });
-            }
+        {   S.play = function(jQ) { return jQ.Juice('play'); };
+            S.stop = function(jQ) { return jQ.Juice('stop'); };
         }
-        ($.Juice = $.Juice || function(){return this.each(function(){return this;});}, $)); 
+        ($.Juice = $.Juice || function(list){
+            if (isQ(list)) return link(list);
+        }, $)); 
     //Juice Namespace in $.fn
         (function(S,fn)
-        {   
+        {            
             S.methods = {
                 init: function (options) {
                     var jQ = $,
-                        link = jQFind(this, true);
+                        list = jQFind(this, true);
                 // Add the new links
-                    link.play = jQPlay;
-                    link.stop = jQStop;
-                    tmpItems = link;
+                    tmpItems = list;
                 // Add the loaders
-                    $.each(link, function () 
+                    $.each(list, function () 
                     {//Key savers
                         var me = this,
-                            $me = $(this),
-                            d = $me.data(ns);
+                            j = d(me);
                         
                     // If the plugin hasn't been initialized yet
-                        if (!d) 
+                        if (!j) 
                         {//Clone options and attach to canvas
                             options.context = me.getContext('2d');
-                            $me.data(ns, new Juice.Animation(options));
-                        // Save Keystrokes
-                            d = $me.data(ns);
-                            $me.attr('height', d.hFull);
-                            $me.attr('width', d.wFull);
+                            d(me, new A(options));
+                            j = d(me);
+                            $(me).attr('height', j.hFull);
+                            $(me).attr('width', j.wFull);
                         }
                     });
-                    var $link = $(link);
-                    $link.play = function() { return jQPlay($(link)); };
-                    return $link;
+                    return link(list);
                 },
                 play: function () {
                     var list = jQFind(this, false);
-                    return jQPlay(list);
+                    return link($.each(list, function() {
+                        var j = d(this);
+                        if (isJ(j)){j.play();}
+                    }));
                 },
                 stop: function () {
                     var list = jQFind(this, false);
-                    return jQStop(list);
+                    return link($.each(list,function(){
+                        var j = d(this);
+                        if (isJ(j)) {j.stop();}
+                    }));
                 },
             };
-            S.play = function() { return jQPlay(this.jQCache); }
-            S.stop = function() { return jQStop(this.jQCache); }
+            S.play = function(jQ) { return $(jQ).Juice('play'); };
+            S.stop = function(jQ) { return $(jQ).Juice('stop'); };
         }
-        
         ($.fn.Juice = $.fn.Juice || function (method)
         {   var ns = $.fn.Juice;
             var fn = $.fn.Juice.methods;
@@ -503,38 +504,21 @@
             } 
             else if (typeof method == 'undefined') 
             {
-                ns.jQCache = this;
-                this.play = function() { return jQPlay(this);};
-                this.stop = function() { return jQStop(this);};
-                return this;
+                return link(this);
             }
         }, $.fn));
+        
+        var link = function(items) {
+            var tmp = $(items);
+            tmp.play = function() {return tmp.Juice('play');};
+            tmp.stop = function() {return tmp.Juice('stop');};
+            return tmp;
+        };
     };
     
     
     var tmpItems;
 
-/* Actual Working Methods for the jQuery Plugin
-   ---------------------------------------------------- */
-/* Plays the list of Juice Canvases. */
-    var jQPlay = function(items)
-    {   if (typeof items == 'undefined')
-        {    items = tmpItems;}
-        return $.each(items, function () {
-            var d = $(this).data(ns);
-            if (d instanceof Juice.Animation)
-            {    d.play();}
-       });
-    };
-    
-/* Stops the list of Juice Canvases. */
-    var jQStop = function(items)
-    {   return $.each(items,function(){
-            var d = $(this).data(ns);
-            if (d instanceof Juice.Animation)
-            {    d.stop();}
-        });
-    };
     
 /* Helper Methods
    ---------------------------------------------------- */
