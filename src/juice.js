@@ -118,7 +118,7 @@
         pts = !d.points ? [{}] : d.points;
         l = pts.length;
         for (i = 0; i < l; i++) { // Create the new element...
-            _.points[i] = new PT(_, pts[i]);
+            _.points[i] = new S.Point(_, pts[i]);
         }
         // Return the results            
         return _;
@@ -214,7 +214,7 @@
             _.alpha = d.alpha || anim.alpha;
             _.paths = new S.Path(anim, d.paths);
             // Possible Siblings Objects Last
-            _.trail = (!d.trail) ? new T(anim.trail) : new T(d.trail);
+            _.trail = (!d.trail) ? new S.Trail(anim.trail) : new S.Trail(d.trail);
             // Return the results            
             return _;
         }));
@@ -263,7 +263,7 @@
             _.alpha = d.alpha || anim.alpha;
             _.paths = new S.Path(anim, d.paths);
             // Possible Siblings Objects Last
-            _.trail = (!d.trail) ? new T(anim.trail) : new T(d.trail);
+            _.trail = (!d.trail) ? new S.Trail(anim.trail) : new S.Trail(d.trail);
             // Return the results            
             return _;
         }));
@@ -399,10 +399,6 @@
 
     /* Sub-Namespaces (all should be created by now)
    ---------------------------------------------------- */
-    var A = S.Animation,
-        PT = S.Point,
-        P = S.Path,
-        T = S.Trail;
 
     if ($) { //Alias - data()
         var tmpItems,
@@ -420,7 +416,7 @@
             return chk instanceof $;
         },
         isJ = function (chk) {
-            return chk instanceof A;
+            return chk instanceof S.Animation;
         },
         link = function (items) {
             var tmp = $(items);
@@ -477,7 +473,7 @@
                         // If the plugin hasn't been initialized yet
                         if (!j) { //Clone options and attach to canvas
                             options.context = me.getContext('2d');
-                            d(me, new A(options));
+                            d(me, new Juice.Animation(options));
                             j = d(me);
                             $(me).attr('height', j.hFull);
                             $(me).attr('width', j.wFull);
