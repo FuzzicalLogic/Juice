@@ -24,7 +24,7 @@
         <h1>Juice</h1>
         <p>Juice is the simplest and most versatile dynamic animation engine for JavaScript and jQuery Plugin support. Make animations that fly in seconds. You can even adjust them while they are actively animating.</p>
 
-        <p class="view"><a href="https://github.com/FuzzicalLogic/Contextualize">View the Project on GitHub <small>FuzzicalLogic/Juice</small></a></p>
+        <p class="view"><a href="https://github.com/FuzzicalLogic/Juice">View the Project on GitHub <small>FuzzicalLogic/Juice</small></a></p>
         <nav>
           <ul>
             <li>View Readme</li>
@@ -92,7 +92,7 @@
     <script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.js"></script>
     <script>
       $('#demo-1').Juice({w:50,h:50,fps:30,points:[{size:4,type:'round',paths:{name:'arc',r:20}}],trail:{length:500,points:8}}).play();
-      $('#demo-5').Juice({fps:6,size: 5,alpha:.75,width:50,height:50,points: [{type:'round',size: 3,color:'#000000',paths: {length:1000,name:'arc',r: 15,start:0,end:360,},},],onLoop: function(a,n) {var _ = this,f = _.fps;if (f < 28){_.fps = f+4;_.points[0].trail.points = _.points[0].trail.points+4;_.cache = [];}else{_.fps = 6;_.points[0].trail.points = 5;_.cache = [];}},trail:{length:1000,points:5},}).play();
+      $('#demo-5').Juice({fps:6,size: 5,alpha:.75,width:50,height:50,points: [{type:'round',size: 3,color:'#000000',paths: {length:1000,name:'arc',r: 15,start:360,end:0,},},],onLoop: function(a,n) {var _ = this,f = _.fps;if (f < 28){_.fps = f+4;_.points[0].trail.points = _.points[0].trail.points+4;_.cache = [];}else{_.fps = 6;_.points[0].trail.points = 5;_.cache = [];}},trail:{length:1000,points:5},}).play();
       $('#demo-10').Juice({w:450,h:6,fps:30,alpha:.5,points:[{size:2,type:'rect',paths:{name:'line',x1:225,y1:3,x2:445,y2:3}},{size:2,type:'rect',paths:{name:'line',x1:225,y1:3,x2:5,y2:3}}],trail:{length:250,points:75}}).play();
       $('#demo-11').Juice({w:450,h:6,fps:5,points:[{size:4,alpha:.5,type:'rect',paths:{name:'line',x1:50,y1:3,x2:399,y2:3}}],trail:{length:1000,points:4}}).play();
     </script>
