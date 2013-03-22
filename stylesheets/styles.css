@@ -200,8 +200,32 @@ section#demos div {
   padding-left:.5em;
 }
 
+
 canvas.demo { width:50px; height:50px; }
 canvas.long.demo { width:450px; height:6px; }
+
+section#body > section > section {
+  display:inline-block;
+  min-height:6em;
+  width:46%; margin-left:1.5%;
+  vertical-align:top;
+}
+
+section#body > section > section > h1 {
+  border-radius:0; border-bottom:2px solid #333333; color:#333333;   background:transparent;
+}
+
+aside p { margin-bottom:0; }
+
+aside#donate {
+  background-color: #DDDDDD;
+  border-radius: .5em;
+  padding-bottom: .5em;
+}
+
+aside#donate h1 {
+  border-radius:.5em .5em 0 0;
+}
 
 small {
   font-size:11px;
