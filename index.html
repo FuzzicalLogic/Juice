@@ -23,6 +23,7 @@
       <header>
         <h1>Juice</h1>
         <p>Juice is the simplest and most versatile dynamic animation engine for JavaScript and jQuery Plugin support. Make animations that fly in seconds. You can even adjust them while they are actively animating.</p>
+        <p>Juice can save quite a bit of bandwidth transfer, and the processing is light. At <a href="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js">&lt; 7k minified</a>, it can offers much more than any standard animated GIF preloader.</p>
 
         <p class="view"><a href="https://github.com/FuzzicalLogic/Juice">View the Project on GitHub <small>FuzzicalLogic/Juice</small></a></p>
         <nav>
@@ -40,7 +41,7 @@
       </header>
       <section id="body">
         <section id="demos">
-          <h1>Simple Demonstrations</h1>
+          <h1>Simple Demos</h1>
           <div>
             <canvas id="demo-1" class="Juice demo" title="Using a simple arc. (only r is declared)"></canvas>
             <canvas id="demo-2" class="Juice demo"></canvas>
@@ -51,7 +52,7 @@
             <canvas id="demo-7" class="Juice demo"></canvas>
             <canvas id="demo-8" class="Juice demo"></canvas>
             <canvas id="demo-9" class="Juice demo"></canvas>
-            <canvas id="demo-10" class="Juice long demo"></canvas>
+            <canvas id="demo-10" class="Juice long demo" title="2 Points on separate Line Paths"></canvas>
             <canvas id="demo-11" class="Juice long demo"></canvas>
             <canvas id="demo-12" class="Juice long demo"></canvas>
           </div>
@@ -59,12 +60,19 @@
         <section>
           <h1>Documentation</h1>
           <section>
-            <h1></h1>
+            <h1>Juice Objects</h1>
             <ul>
               <li>Animation</li>
               <li>Point</li>
               <li>Path</li>
               <li>Trail</li>
+            </ul>
+          </section>
+          <section>
+            <h1>Programmable Events</h1>
+            <ul>
+              <li>onSetup</li>
+              <li>onLoop</li>
             </ul>
           </section>
         </section>
@@ -88,33 +96,14 @@
         </div>
       </footer>
     </div>
-    <!--<script src="https://raw.github.com/FuzzicalLogic/Juice/master/min-tests/juice.min_64.js"></script>-->
     <script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js"></script>
     <!--<script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.js"></script>-->
     <script>
-      $('#demo-1').Juice({w:50,h:50,fps:30,points:[{size:4,type:'round',paths:{name:'arc',r:20}}],trail:{length:500,points:8}}).play();
-      $('#demo-5').Juice({cache: false,fps: 8,size: 12,w: 100,h: 100,color:'#0000BB',points: [{type: 'round',paths:{length: 1000,
-            name: 'arc',
-            //r: 45,
-            start: 270,
-            end: -90
-        }
-    }],
-    onLoop: function (n) {
-        var f,
-        s = this.point(0).trail().size();
-
-        this.point(0).trail().size((f = this.fps()) < 40 ? s + 4 : 7)
-            .juice()
-            .color(n % 2 ? '#BB0000' : '#0000BB')
-            .fps(f < 40 ? f + 4 : 8);
-    },
-    trail: {
-        length: 1000,
-        points: 7,
-        transform: true,fade: false}}).play();
-      $('#demo-10').Juice({w:450,h:6,fps:30,length:3000,alpha:.75,points:[{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:445,y2:3}},{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:5,y2:3}}],trail:{length:250,points:75,fade:true}}).play();
-      $('#demo-11').Juice({w:450,h:6,fps:5,points:[{size:4,alpha:.5,type:'rect',paths:{name:'line',x1:50,y1:3,x2:399,y2:3}}],trail:{length:1000,points:4}}).play();
+      $('#demo-1').Juice({points:[{type:'round',paths{name:'arc'}}]).play();
+      $('#demo-2').Juice({w:50,h:50,fps:30,points:[{size:4,type:'round',paths:{name:'arc',r:20}}],trail:{length:500,points:8}}).play();
+      $('#demo-5').Juice({cache: false,fps: 8,size: 12,color:'#0000BB',points: [{type: 'round',paths:{length: 1000,name: 'arc',start: 270,end: -90}}],onLoop: function (n) {var f,s = this.point(0).trail().size();this.point(0).trail().size((f = this.fps()) < 40 ? s + 4 : 7).juice().color(n % 2 ? '#BB0000' : '#0000BB').fps(f < 40 ? f + 4 : 8);},trail: {length: 1000,points: 7,transform: true,fade: false}}).play();
+      $('#demo-10').Juice({w:450,h:6,fps:5,points:[{size:4,alpha:.5,type:'rect',paths:{name:'line',x1:50,y1:3,x2:399,y2:3}}],trail:{length:1000,points:4}}).play();
+      $('#demo-11').Juice({w:450,h:6,fps:30,length:3000,alpha:.75,points:[{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:445,y2:3}},{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:5,y2:3}}],trail:{length:250,points:75,fade:true}}).play();
     </script>
   </body>
 </html>
