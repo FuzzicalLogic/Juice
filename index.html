@@ -101,7 +101,7 @@
     <script>
       $('#demo-1').Juice({size:5,points:[{type:'round',paths:{name:'arc'}}]}).play();
       $('#demo-2').Juice({size:5,points:[{type:'round',paths:{name:'arc',r:20}}],trail:{length:1000,points:7}}).play();
-      $('#demo-3').Juice({fps:8,size:5,points:[{type:'round',paths:{name:'arc',r:20},trail:{length:1000,transform:true;}}],trail:{points:7,fade:true,transform:true}}).play();
+      $('#demo-3').Juice({fps:8,size:5,points:[{type:'round',paths:{name:'arc',r:20},trail:{length:1000,transform:true}}],trail:{points:7,fade:true,transform:true}}).play();
       $('#demo-5').Juice({cache: false,fps: 8,size: 12,color:'#0000BB',points: [{type: 'round',paths:{length: 1000,name: 'arc',start: 270,end: -90}}],onLoop: function (n) {var f,s = this.point(0).trail().size();this.point(0).trail().size((f = this.fps()) < 40 ? s + 4 : 7).juice().color(n % 2 ? '#BB0000' : '#0000BB').fps(f < 40 ? f + 4 : 8);},trail: {length: 1000,points: 7,transform: true,fade: false}}).play();
       $('#demo-10').Juice({w:450,h:6,fps:5,points:[{size:4,alpha:.5,type:'rect',paths:{name:'line',x1:50,y1:3,x2:399,y2:3}}],trail:{length:1000,points:4}}).play();
       $('#demo-11').Juice({w:450,h:6,fps:30,length:3000,alpha:.75,points:[{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:445,y2:3}},{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:5,y2:3}}],trail:{length:250,points:75,fade:true}}).play();
