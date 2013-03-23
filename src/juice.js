@@ -5,38 +5,6 @@
     var ns = 'Juice',
         NIL = function () {};
 
-    var nPath = function (p, data) {
-        var r,
-        d = data || {},
-        // Save keystrokes
-        me = this;
-        // Get the right kind of Point
-        me.name = d.name || '';
-        if (me.name === 'line') {
-            r = new J.Path.Line(p, data);
-        } else if (me.name === 'arc') {
-            r = new J.Path.Arc(p, data);
-        } else if (me.name === 'bezier') {
-            r = new J.Path.Bezier(p, data);
-        } else if (me.name === 'ellipse') {
-            r = new J.Path.Ellipse(p, data);
-        }
-        return r;
-    },
-    nPoint = function (A, data) {
-        //Initialize
-        var r,
-        d = data || {};
-        // Get the right kind of Point
-        this.type = d.type || 'rect';
-        if (this.type === 'round') {
-            r = new J.Point.Round(A, data);
-        } else {
-            r = new J.Point.Rect(A, data);
-        }
-        return r;
-    };
-
     (function (J, T) {
         T.prototype = {
             fader: function (b) {
@@ -44,7 +12,7 @@
                     this.fade = b;
                     return this;
                 }
-                if (typeof this.fade === 'undefined') return this.juice().trail().fade;
+                if (typeof this.fade === undefined) return this.juice().trail().fade;
                 return this.fade;
             },
             resize: function (b) {
@@ -53,7 +21,7 @@
                     _.transform = b;
                     r = _;
                 }
-                if (typeof _.transform === 'undefined') {
+                if (_.transform === undefined) {
                     r = _.juice().trail().transform;
                 }
                 return r || this.transform;
@@ -81,110 +49,221 @@
         return this;
     }));
 
+    var pathProgression = [];
+    pathProgression['line'] = function (p, pt) {
+        var _ = this,
+            x = _.x1 + ((_.x2 - _.x1) * p),
+            y = _.y1 + ((_.y2 - _.y1) * p);
+        pt.render(x, y);
+    };
+    pathProgression['arc'] = function (progress, pt) {
+        var _ = this,
+            x = _.x,
+            y = _.y,
+            adj = pt.size() / 2,
+            r = _.r - adj,
+            start = _.start,
+            end = _.end,
+            angle = (Math.PI * (((end - start) * progress) + start) / 180) - Math.PI / 2;
+        x = r * Math.cos(angle) + x;
+        y = r * Math.sin(angle) + y;
+        pt.render(x, y);
+    };
+    pathProgression['ellipse'] = NIL;
+    pathProgression['bezier'] = function (p, pt) {
+        var _ = this,
+            p1x = _.startX,
+            p1y = _.startY,
+            p2x = _.endX,
+            p2y = _.endY,
+            cp1x = _.cp1x,
+            cp1y = _.cp1y,
+            cp2x = _.cp2x,
+            cp2y = _.cp2y,
+            h = (1 - p) * (1 - p) * (1 - p),
+            p2 = 3 * (1 - p) * (1 - p) * p,
+            d = 3 * (1 - p) * p * p,
+            v = p * p * p,
+            x = h * p1x + p2 * cp1x + d * cp2x + v * p2x,
+            y = h * p1y + p2 * cp1y + d * cp2y + v * p2y;
 
+        pt.render(x, y);
+    };
 
+    var pathInit = [];
+    pathInit['line'] = function (p, data) {
+        var _ = this,
+            d = data || {},
+            w = _.juice().width(),
+            h = _.juice().height();
+        _.length = d.length || 'auto';
+        _.x1 = d.x1 || 0 + p.size() / 2;
+        _.y1 = d.y1 || h / 2;
+        _.x2 = d.x2 || w - p.size() / 2;
+        _.y2 = d.y2 || h / 2;
+        return _;
+    };
+    pathInit['arc'] = function (p, data) {
+        var _ = this,
+            d = (data || {}),
+            w = _.juice().width(),
+            h = _.juice().height();
+        _.length = d.length || 'auto';
+        _.x = d.x || w / 2;
+        _.y = d.y || h / 2;
+        _.r = d.r || (w > h ? w / 2 : h / 2);
+        _.start = d.start || 0;
+        _.end = d.end || 360;
+        return _;
+    };
+    pathInit['ellipse'] = function (p, data) {
+        _.length = d.length || 'auto';
+        return this;
+    };
+    pathInit['bezier'] = function (p, data) {
+        p.setChild(this);
+        var _ = this,
+            d = data || {};
+        _.length = d.length || 'auto';
+        _.startX = d.startX;
+        _.startY = d.startY;
+        _.endX = d.endX;
+        _.endY = d.endY;
+        _.cp1x = d.cp1x;
+        _.cp1y = d.cp1y;
+        _.cp2x = d.cp2x;
+        _.cp2y = d.cp2y;
+        return _;
+    };
     (function (J, P) {
-        var nLine = function (p, data) {
-            p.setChild(this);
-            var _ = this,
-                d = data || {},
-                w = _.juice().width(),
-                h = _.juice().height();
-            _.x1 = d.x1 || 0;
-            _.y1 = d.y1 || h / 2;
-            _.x2 = d.x2 || w;
-            _.y2 = d.y2 || h / 2;
-            return _;
-        },
-        nArc = function (p, data) {
-            p.setChild(this);
-            var _ = this,
-                d = (data || {}),
-                w = _.juice().width(),
-                h = _.juice().height();
-            _.x = d.x || w / 2;
-            _.y = d.y || h / 2;
-            _.r = d.r || w > h ? w / 2 : h / 2;
-            _.start = d.start || 0;
-            _.end = d.end || 360;
-            return _;
-        },
-        nBez = function (p, data) {
-            p.setChild(this);
-            var _ = this,
-                d = data || {};
-            _.startX = d.startX;
-            _.startY = d.startY;
-            _.endX = d.endX;
-            _.endY = d.endY;
-            _.cp1x = d.cp1x;
-            _.cp1y = d.cp1y;
-            _.cp2x = d.cp2x;
-            _.cp2y = d.cp2y;
-            return _;
-        },
-        nEll = function (p, data) {
-            p.setChild(this);
-            return this;
-        };
-        (function (P, L) {
-            Juice.Path.Line.prototype.draw = function (p, pt) {
-                var _ = this,
-                    x = _.x1 + ((_.x2 - _.x1) * p),
-                    y = _.y1 + ((_.y2 - _.y1) * p);
-                pt.render(x, y);
-            };
 
-        }(P, P.Line = P.Line || nLine));
-        (function (P, A) {
-            A.prototype.draw = function (progress, pt) {
-                var _ = this,
-                    x = _.x,
-                    y = _.y,
-                    adj = pt.size() / 2,
-                    r = _.r - adj,
-                    start = _.start,
-                    end = _.end,
-                    angle = Math.PI * (end + (progress * (start - end))) / 180;
-                x = r * Math.sin(angle) + x;
-                y = r * Math.cos(angle) + y;
-                pt.render(x, y);
-            };
-
-        }(P, P.Arc = P.Arc || nArc));
-        (function (J, P, E) {
-
-        }(J, P, P.Ellipse = Juice.Ellipse || nEll));
-
-        (function (J, P, B) {
-            B.prototype.draw = function (p, pt) {
-                var _ = this,
-                    p1x = _.startX,
-                    p1y = _.startY,
-                    p2x = _.endX,
-                    p2y = _.endY,
-                    cp1x = _.cp1x,
-                    cp1y = _.cp1y,
-                    cp2x = _.cp2x,
-                    cp2y = _.cp2y,
-                    h = (1 - p) * (1 - p) * (1 - p),
-                    p2 = 3 * (1 - p) * (1 - p) * p,
-                    d = 3 * (1 - p) * p * p,
-                    v = p * p * p,
-                    x = h * p1x + p2 * cp1x + d * cp2x + v * p2x,
-                    y = h * p1y + p2 * cp1y + d * cp2y + v * p2y;
-
-                pt.render(x, y);
-            };
-        }(J, P, P.Bezier = P.Bezier || nBez));
     }
-    (J, J.Path = J.Path || nPath));
+    (J, J.Path = J.Path || function (p, data) {
+        p.setChild(this);
+        var _ = this,
+            d = data || {},
+            w = _.juice().width(),
+            h = _.juice().height();
+
+        _.name = d.name || '';
+        _.init = pathInit[_.name];
+        _.init(p, data);
+        _.draw = pathProgression[_.name];
+        return _;
+    }));
 
 
+    var ptRender = [];
+    ptRender['rect'] = function (x, y) {
+        var adj, _ = this,
+            c2d = _.juice().context(),
+            s = _.size(),
+            a = _.alpha();
+
+        // Initialize
+        x = x || 0;
+        y = y || 0;
+        // Account for Trailing
+        if (_.canResize()) {
+            s = s * _.modifier;
+        }
+        adj = s / 2;
+        if (this.canFade()) {
+            a = a * _.modifier;
+        }
+        c2d.globalAlpha = a;
+        // Draw the Point
+        c2d.fillStyle = _.color();
+        c2d.fillRect(x - adj, y - adj, s, s);
+    };
+    ptRender['round'] = function (x, y) {
+        var _ = this,
+            adj,
+            c2d = _.juice().context(),
+            s = _.size(),
+            a = _.alpha();
+
+        x = x || 0;
+        y = y || 0;
+
+        if (_.canResize()) {
+            s = s * _.modifier;
+        }
+        if (_.canFade()) {
+            a = a * _.modifier;
+        }
+        adj = s / 2;
+
+        c2d.globalAlpha = a;
+        // Draw the Point
+        c2d.fillStyle = _.color();
+        c2d.beginPath();
+        c2d.arc(x, y, adj, 0, 360, false);
+        c2d.fill();
+        c2d.closePath();
+    };
     (function (J, P) {
+        var liquidate = function (pt) {
+            var V = pt.paths(),
+                iV = 0,
+                nV = V.length,
+                tV = 0,
+                tMax = pt.juice().length(),
+                tR = tMax,
+                nAuto = 0;
+            // Get all Path Lengths - (Absolutes FIRST)
+            for (iV = 0; iV < nV && tR > 0; iV++) {
+                tV = V[iV].length || 'auto';
+                if (typeof tV === 'number') {
+                    if (tV > tR) {
+                        tV = tR;
+                    }
+                    tR = tR - tV;
+                    V[iV].EndAt = tV / tMax;
+                } else if (tV === 'auto') {
+                    nAuto = nAuto + 1;
+                }
+            }
+            // Automatics Next
+            for (iV = 0; iV < nV && nAuto > 0 && tR > 0; iV++) {
+                if (!V[iV].EndAt) {
+                    V[iV].EndAt = (tR / nAuto) / tMax;
+                }
+            }
+
+            var tmp = 0;
+            for (iV = 0; iV < nV; iV++) {
+                V[iV].EndAt = V[iV].EndAt + tmp;
+                tmp = V[iV].EndAt;
+            }
+        },
+        findCorrectPath = function (pt, time) {
+            var V = pt.paths(),
+                iV, nV = V.length,
+                stop, r;
+            // Quick Security Scan
+            for (iV = 0; iV < nV; iV++)
+            if (!V[iV].EndAt) liquidate(pt);
+
+            for (iV = 0; iV < nV && !stop; iV++) {
+                if (time <= V[iV].EndAt) stop = true;
+            }
+            if (stop) {
+                if (iV == 0) {
+                    r = iV;
+                } else if (iV > 0) {
+                    if (time > V[iV - 1].EndAt) {
+                        r = iV;
+                    } else {
+                        r = iV - 1;
+                    }
+                }
+            }
+            return r;
+        };
         P.prototype = {
             setChild: function (o) {
-                if (typeof o !== 'undefined') {
+                if (o !== undefined) {
                     var _ = this;
                     o.parent = function () {
                         return _;
@@ -192,33 +271,38 @@
                     _.juice().chain(o);
                 }
             },
-            draw: function (f) { //Initialize
-                var pt, n,
-                _ = this,
-                    j = _.juice(),
-                    t = _.trail(),
-                    ptProgress = 0,
-                    d = (t.length() / j.length()) / (t.size() + 1),
-                    p = j.progress(f);
+            draw: function (pA) {
+                var _ = this,
+                    iPt, tPt = 0,
+                    nTPts = _.trail().size() + 1,
+                    tMax = _.juice().length(),
+                    dTPts = (_.trail().length() / tMax) / nTPts,
+                    V = _.paths(),
+                    nV = V.length,
+                    useV;
 
-                for (pt = 0, n = t.size() + 1; pt < n; pt++) {
-                    ptProgress = p - ((n - pt) * d);
-                    if (ptProgress < 0) {
-                        ptProgress = ptProgress + 1;
+                for (iPt = 0; iPt < nTPts; iPt++) {
+                    _.modifier = (iPt / nTPts);
+                    tPt = pA - ((nTPts - iPt) * dTPts);
+                    // Align the Point...
+                    if (tPt < 0) {
+                        tPt = tPt + 1;
                     }
-                    _.modifier = (pt / n);
-                    if (_.paths) {
-                        _.path = _.paths;
-                        if (typeof _.paths === 'function') {
-                            _.paths(ptProgress, _);
-                        } else if (typeof _.paths === 'object') {
-                            _.paths.draw(ptProgress, _);
-                        }
+                    if (tPt > 1) {
+                        tPt = tPt - 1;
                     }
-                    // Default to global Step() function
-                    else {
-                        _.step(ptProgress, this);
+
+                    // Draw here...
+                    useV = findCorrectPath(this, tPt);
+                    var tPath;
+                    if (useV == 0 && nV == 1) {
+                        tPath = tPt;
+                    } else if (useV == 0 && nV > 1) {
+                        tPath = tPt / V[useV].EndAt;
+                    } else if (useV > 0) {
+                        tPath = (tPt - V[useV - 1].EndAt) / (V[useV].EndAt - V[useV - 1].EndAt);
                     }
+                    V[useV].draw(tPath, _);
                 }
             },
             type: function () {},
@@ -253,9 +337,9 @@
                     t = _.PointTrail;
                     t.length(o.length);
                     t.size(o.points);
-                    if (typeof o.fade === 'undefined') o.fade = true;
+                    if (o.fade === undefined) o.fade = true;
                     t.fader(o.fade);
-                    if (typeof o.transform === 'undefined') o.transform = false;
+                    if (o.transform === undefined) o.transform = false;
                     t.resize(o.transform);
                     return _;
                 }
@@ -268,126 +352,57 @@
                 return this.trail().resize();
             },
             path: function (i, o) {
-                var _ = this;
-                if (typeof i === 'number') {
+                var r, p, _ = this;
+                if (typeof i === 'object') {
+                    _.Paths.push(new Juice.Path(_, i));
+                    r = _;
+                } else if (typeof i === 'number') {
                     if (typeof o === 'object') {
-                        _.paths[i] = new J.Path(_, o);
+                        _.Paths[i] = new Juice.Path(_, o);
+                        r = _;
+                    } else {
+                        r = _.Paths[i];
                     }
-                    return _.paths[i];
-                } else if (typeof i === 'object') {
-                    paths = new J.Path(_, i);
+                } else {
+                    r = _;
                 }
-                return _.paths || _.juice().paths();
+                return r;
+            },
+            paths: function (o) {
+                var i, r,
+                _ = this;
+                if (o instanceof Array) {
+                    _.Paths = [];
+                    var num = o.length;
+                    for (i = 0; i < num; i++) {
+                        _.path(i, o[i]);
+                    }
+                    r = _;
+                } else if (typeof o === 'object') {
+                    _.Paths = [];
+                    _.path(o);
+                    r = _;
+                } else {
+                    r = _.Paths
+                }
+                return r;
             },
             onDestroy: function () {}
         };
-        var extend = function (c) {
-            var O = P.prototype,
-                C = c.prototype;
-            C.setChild = O.setChild;
-            C.draw = O.draw;
-            C.size = O.size;
-            C.color = O.color;
-            C.type = O.type;
-            C.alpha = O.alpha;
-            C.trail = O.trail;
-            C.path = O.path;
-            C.canFade = O.canFade;
-            C.canResize = O.canResize;
-            C.onDestroy = O.onDestroy;
+    }(J, J.Point = J.Point || function (A, data) {
+        var _ = this,
+            d = data || {};
+        A.chain(_);
 
-        };
-
-        // Round Point Objects
-        var nRoundPoint = function (j, data) { //Initialize
-            var _ = this,
-                d = data || {};
-            // Set the parent appropriately
-            j.chain(_);
-            // Set defaults... the hard way!
-            _.size(d.size);
-            _.color(d.color);
-            _.alpha(d.alpha);
-            this.paths = new J.Path(_, d.paths);
-            // Possible Siblings Objects Last
-            _.trail(d.trail);
-
-            // Return the results            
-            return this;
-        };
-        // Rectangular Point Objects
-        var nRectPoint = function (j, data) { //Initialize
-            var _ = this,
-                d = data || {};
-            // Create Linkage
-            j.chain(_);
-
-            // Set defaults... the hard way!
-            _.size(d.size);
-            _.color(d.color);
-            _.alpha(d.alpha);
-            this.paths = new Juice.Path(_, d.paths);
-            // Possible Siblings Objects Last
-            _.trail(d.trail);
-            // Return the results            
-            return _;
-        };
-        (function (P, C) {
-            extend(C);
-            C.prototype.render = function (x, y) { //ERROR:No Context
-                var _ = this,
-                    c2d = _.juice().context(),
-                    adj,
-                    s = _.size(),
-                    a = _.alpha();
-
-                // Initialize
-                x = x || 0;
-                y = y || 0;
-
-                // Account for Trailing
-                if (_.canResize()) {
-                    s = s * _.modifier;
-                }
-                adj = s / 2;
-                if (_.canFade()) {
-                    a = a * _.modifier;
-                }
-                c2d.globalAlpha = a;
-                // Draw the Point
-                c2d.fillStyle = _.color();
-                c2d.beginPath();
-                c2d.arc(x, y, adj, 0, 360, false);
-                c2d.fill();
-                c2d.closePath();
-            };
-        }(P, P.Round = P.Round || nRoundPoint));
-        (function (P, R) { //Inherited Functions
-            extend(R);
-            R.prototype.render = function (x, y) {
-                var adj, _ = this,
-                    c2d = _.juice().context(),
-                    s = _.size(),
-                    a = _.alpha();
-
-                // Initialize
-                x = x || 0;
-                y = y || 0;
-                // Account for Trailing
-                if (_.canResize()) {
-                    s = s * _.modifier;
-                }
-                adj = s / 2;
-                if (this.canFade()) {
-                    a = a * _.modifier;
-                }
-                c2d.globalAlpha = a;
-                // Draw the Point
-                c2d.fillStyle = _.color();
-                c2d.fillRect(x + adj, y + adj, s, s);
-            };
-        }(P, P.Rect = P.Rect || nRectPoint));
-    }(J, J.Point = J.Point || nPoint));
+        _.type = d.type || 'rect';
+        _.render = ptRender[_.type] || NIL;
+        _.size(d.size);
+        _.color(d.color);
+        _.alpha(d.alpha);
+        _.paths(d.paths);
+        _.trail(d.trail);
+        return _;
+    }));
 
     //Animation Namespace
     (function (J, A) {
@@ -425,9 +440,10 @@
         renderFrame = function (_, f) {
             var c2d = _.context(),
                 w = _.wFull,
-                h = _.hFull;
+                h = _.hFull,
+                p = _.progress(f);
             $.each(_.points(), function () {
-                this.draw(f);
+                this.draw(p);
             });
             return c2d.getImageData(0, 0, w, h);
         },
@@ -440,7 +456,7 @@
         };
         A.prototype = {
             chain: function (o) {
-                if (typeof o !== 'undefined') {
+                if (o !== undefined) {
                     var _ = this;
                     o.juice = function () {
                         return _;
@@ -448,7 +464,7 @@
                 }
             },
             setChild: function (o) {
-                if (typeof o !== 'undefined') {
+                if (o !== undefined) {
                     var _ = this;
                     o.parent = function () {
                         return _;
@@ -479,7 +495,7 @@
             cache: function (b) {
                 if (typeof b === 'boolean') {
                     this.CacheFrames = b;
-                } else if (typeof b === 'undefined') {
+                } else if (b === undefined) {
                     this.CacheFrames = true;
                 }
                 return this;
@@ -776,7 +792,7 @@
                 r = fn[method].apply(this, Array.prototype.slice.call(arguments, 1));
             } else if (typeof method === 'object') {
                 r = fn.init.apply(this, arguments);
-            } else if (typeof method === 'undefined') {
+            } else if (method === undefined) {
                 r = link(this);
             }
             return r;
