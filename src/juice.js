@@ -12,7 +12,11 @@
                     this.fade = b;
                     return this;
                 }
-                if (typeof this.fade === undefined) return this.juice().trail().fade;
+                
+                if (typeof this.fade === undefined)
+                    if (!(this.parent() instanceof Juice.Animation))
+                        if (this.juice().trail().fade === undefined)
+                            {return this.juice().trail().fade;}
                 return this.fade;
             },
             resize: function (b) {
@@ -274,7 +278,7 @@
             draw: function (pA) {
                 var _ = this,
                     iPt, tPt = 0,
-                    nTPts = _.trail().size() + 1,
+                    nTPts = _.trail().size()+1,
                     tMax = _.juice().length(),
                     dTPts = (_.trail().length() / tMax) / nTPts,
                     V = _.paths(),
@@ -282,10 +286,10 @@
                     useV;
 
                 for (iPt = 0; iPt < nTPts; iPt++) {
-                    _.modifier = (iPt / nTPts);
-                    tPt = pA - ((nTPts - iPt) * dTPts);
+                    _.modifier = (nTPts -iPt) / nTPts;
+                    tPt = pA - iPt * dTPts;
                     // Align the Point...
-                    if (tPt < 0) {
+                    if (tPt <= 0) {
                         tPt = tPt + 1;
                     }
                     if (tPt > 1) {
@@ -337,9 +341,7 @@
                     t = _.PointTrail;
                     t.length(o.length);
                     t.size(o.points);
-                    if (o.fade === undefined) o.fade = true;
                     t.fader(o.fade);
-                    if (o.transform === undefined) o.transform = false;
                     t.resize(o.transform);
                     return _;
                 }
@@ -442,9 +444,11 @@
                 w = _.wFull,
                 h = _.hFull,
                 p = _.progress(f);
-            $.each(_.points(), function () {
-                this.draw(p);
-            });
+
+            var n = _.points().length;
+            for (var i = 0; i < n; i++) {
+                _.point(i).draw(_.progress(f));
+            }
             return c2d.getImageData(0, 0, w, h);
         },
         setDimensions = function (a) {
@@ -473,7 +477,7 @@
                 }
             },
             progress: function (f) {
-                return f / getCacheSize(this);
+                return (f + 1) / getCacheSize(this);
             },
             fps: function (n) {
                 var r, _ = this;
@@ -554,9 +558,13 @@
                     this.DefaultTrail = new J.Trail(this, o);
                     var t = this.DefaultTrail;
                     t.length(o.length || 500)
-                        .size(o.points || 10)
-                        .fader(o.fade);
-                    t.resize(o.transform);
+                        .size(o.points || 10);
+                    if (o.fade === undefined)
+                        t.fader(true);
+                    else t.fader(o.fade);
+                    if (o.transform === undefined)
+                        t.resize(false);
+                    else t.resize(o.transform);
                     return this;
                 }
                 return this.DefaultTrail || {};
