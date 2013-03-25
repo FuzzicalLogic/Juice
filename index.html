@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js"></script>
     <script src="javascripts/respond.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -40,25 +41,53 @@
         </nav>
       </header>
       <section id="body">
+        <section id="intro">
+          <h1>How it Works<canvas class="Juice heading"></h1>
+          <p>Unlike other JS animators, Juice maximizes on the concept of relative time. Speed is determined by how far each object has to move and how much time it has to get there. This makes frames consistent at both high and low FPS. Motion Paths and Trailing Effects all utilize this relative time to determine how long it is in relation to the overall animation.</p>
+          <p>To improve performance, Juice also focuses all calculations on Motion Points. Rather than tracking 50 points on a trail, Juice tracks one and the rest are drawn relative to the first. So point distance vs. speed calculations are unnecessary, and, in fact, inhibit the process.</p>
+          <p>Another major draw to Juice is its cascading properties. If you set a point size on the animation, all points that don't have a size property will use it. You may override those properties as much or as little as you like. This allows every point to share or keep their own as needed.</p>
+          <p>Finally, by default, every animation is cached on its first run. This makes subsequent loops and plays bypass their calculations. However, you have complete control of the cache, even to the point that it may be turned off and on at will.</p>
+        </section>
+        <canvas class="Juice h rule"></canvas>
         <section id="demos">
-          <h1>Simple Demos</h1>
+          <h1>Simple Demos<canvas class="Juice heading"></h1>
           <div>
-            <canvas id="demo-1" class="Juice demo" title="Using a simple arc. (only size is declared)"></canvas>
-            <canvas id="demo-2" class="Juice demo" title="Same arc. Increased Animation length, Trail length, and the radius."></canvas>
-            <canvas id="demo-3" class="Juice demo" title="Same arc. Added trail effects and lowered FPS."></canvas>
-            <canvas id="demo-4" class="Juice demo"></canvas>
-            <canvas id="demo-5" class="Juice demo" title="Using onLoop to change FPS and Trail size."></canvas>
-            <canvas id="demo-6" class="Juice demo"></canvas>
-            <canvas id="demo-7" class="Juice demo"></canvas>
-            <canvas id="demo-8" class="Juice demo"></canvas>
-            <canvas id="demo-9" class="Juice demo"></canvas>
-            <canvas id="demo-10" class="Juice long demo" title="2 Points on separate Line Paths"></canvas>
-            <canvas id="demo-11" class="Juice long demo"></canvas>
-            <canvas id="demo-12" class="Juice long demo"></canvas>
+<div id="demo-1" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo" title="Using a simple arc. (only size is declared)"></canvas>
+</div>
+<div id="demo-2" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo" title="Same arc. Increased Animation length, Trail length, and the radius."></canvas>
+</div>
+<div id="demo-3" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo" title="Same arc. Added trail effects and lowered FPS."></canvas>
+</div>
+<div id="demo-4" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<div id="demo-5" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo" title="Using onLoop to change FPS and Trail size."></canvas>
+</div>
+<div id="demo-6" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<div id="demo-7" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<div id="demo-8" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<div id="demo-9" class="demo"><canvas class="frame"></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+            <div><canvas id="demo-10" class="Juice long demo" title="2 Points on separate Line Paths"></canvas></div>
+            <div><canvas id="demo-11" class="Juice long demo"></canvas></div>
+            <div><canvas id="demo-12" class="Juice long demo"></canvas></div>
           </div>
         </section>
+        <canvas class="Juice h rule"></canvas>
         <section>
-          <h1>Documentation</h1>
+          <h1>Documentation<canvas class="Juice heading"></h1>
+          <p>Animations in Juice are entirely dynamic. At any point in time, you may change any single property of any object used by the animation. Additionally, Juice allows you to respond to specific events. These give access to the animation's properties, even allowing conditional behavior.</p>
           <section>
             <h1>Juice Objects</h1>
             <ul>
@@ -76,8 +105,9 @@
             </ul>
           </section>
         </section>
+        <canvas class="Juice h rule"></canvas>
         <aside id="donate">
-          <h1>Donations</h1>
+          <h1>Donations<canvas class="Juice heading"></h1>
           <form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float:right;">
             <input type="hidden" name="cmd" value="_s-xclick">
             <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
@@ -96,15 +126,42 @@
         </div>
       </footer>
     </div>
-    <script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js"></script>
-    <!--<script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.js"></script>-->
+    
+
+<!-- Simple Arc Demos -->
     <script>
-      $('#demo-1').Juice({size:5,points:[{type:'round',paths:{name:'arc'}}]}).play();
-      $('#demo-2').Juice({length:2000,size:5,points:[{type:'round',paths:{name:'arc',r:15}}],trail:{length:500,points:7}}).play();
-      $('#demo-4').Juice({alpha:1,length:2000,fps:8,size:10,points:[{type:'round',paths:{name:'arc',r:15},trail:{length:2000,points:15,fade:true,transform:true}}]}).play();
-      $('#demo-8').Juice({w:75,h:75,cache:false,fps: 8,size: 12,color:'#0000BB',points: [{type: 'round',paths:{length: 1000,name: 'arc',start: 270,end: -90}}],onLoop: function (n) {var f,s = this.point(0).trail().size();this.point(0).trail().size((f = this.fps()) < 40 ? s + 4 : 7).juice().color(n % 2 ? '#BB0000' : '#0000BB').fps(f < 40 ? f + 4 : 8);},trail: {length: 1000,points: 7,transform: true,fade: false}}).play();
+      $('#demo-1 .demo').Juice({size:5,points:[{type:'round',paths:{name:'arc'}}]}).play();
+      $('#demo-2 .demo').Juice({length:2000,size:5,points:[{type:'round',paths:{name:'arc',r:15}}],trail:{length:500,points:7}}).play();
+      $('#demo-4 .demo').Juice({alpha:1,length:2000,fps:8,size:10,points:[{type:'round',paths:{name:'arc',r:15},trail:{length:2000,points:15,fade:true,transform:true}}]}).play();
+      $('#demo-8 .demo').Juice({w:75,h:75,cache:false,fps: 8,size: 12,color:'#0000BB',points: [{type: 'round',paths:{length: 1000,name: 'arc',start: 270,end: -90}}],onLoop: function (n) {var f,s = this.point(0).trail().size();this.point(0).trail().size((f = this.fps()) < 40 ? s + 4 : 7).juice().color(n % 2 ? '#BB0000' : '#0000BB').fps(f < 40 ? f + 4 : 8);},trail: {length: 1000,points: 7,transform: true,fade: false}}).play();
+      $('#demo-9 .demo').Juice({w:25,h:25,size:3,points:[{type:'round',paths:[
+{name:'line',x1:1,x2:24,y1:24,y2:24},
+{name:'line',x1:24,x2:12,y1:24,y2:1},
+{name:'line',x1:12,x2:1,y1:1,y2:24}
+]}],trail:{length:200,points:20,transform:true,fade:false}}).play();
+    </script>
+<!-- Simple Line Demos -->
+    <script>
       $('#demo-10').Juice({w:450,h:6,fps:5,points:[{size:4,alpha:.5,type:'rect',paths:{name:'line',x1:50,y1:3,x2:399,y2:3}}],trail:{length:1000,points:4}}).play();
       $('#demo-11').Juice({w:450,h:6,fps:30,length:3000,alpha:.75,points:[{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:445,y2:3}},{size:1,type:'rect',paths:{name:'line',x1:225,y1:3,x2:5,y2:3}}],trail:{length:250,points:75,fade:true}}).play();
     </script>
+<!-- Page Decorations -->
+    <script>
+/* Vertical Page Divider */
+$('#body').Juice({fps:15,length:10000,w:6,h:100,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:2,y2:98,x1:3,x2:3},{name:'line',y1:98,y2:2,x1:3,x2:3}]},{paths:[{name:'line',y1:98,y2:2,x1:3,x2:3},{name:'line',y1:2,y2:98,x1:3,x2:3}]}],trail:{length:5000,points:50,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
+
+/* Horizontal Rules */
+$('.h.rule').Juice({fps:15,length:10000,w:100,h:6,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:3,y2:3,x1:2,x2:98},{name:'line',y1:3,y2:3,x1:98,x2:2}]},{paths:[{name:'line',y1:3,y2:3,x1:98,x2:2},{name:'line',y1:3,y2:3,x1:2,x2:98}]}],trail:{length:5000,points:50,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
+
+/* Bullets for List Items */
+$('#body section section li').Juice({fps:15,length: 4000,w: 25,h: 25,size:2,color:'#000000',points: [{type: 'rect',paths: [{name: 'line',length: 400,}, {name: 'arc',start: 90,end: -450}]}, {type: 'rect',paths: [{name: 'arc',start: -90,end: 450}, {name: 'line',length: 400,x1: 23,x2: 2}]}, {type: 'rect',paths: [{name: 'line',length: 400,x1: 23,x2: 2}, {name: 'arc',start: -90,end: -630}]}, {type: 'rect',paths: [{name: 'arc',start: 90,end: 630}, {name: 'line',length: 400,}]}],trail: {length: 500,points: 10,fade: false}}).play();
+
+/* Header Animation */
+$('.Juice.heading').Juice({fps:30,w:100,h:8,length:2500,size:4,color:'#ffffff',points:[{paths:[{name:'line',x1:4,x2:96,y1:4,y2:4}]}]}).play();
+
+/* Frames for Demos */
+$('.frame').Juice({fps:20,w:50,h:50,length:5000,size:1,alpha:.6,points:[{type:'rect',paths:[{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49},{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1}]},{type:'rect',paths:[{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1},{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49}]}],trail:{length:3500,points:50, fade:true}}).play();
+    </script>
+
   </body>
 </html>
