@@ -41,14 +41,6 @@
         </nav>
       </header>
       <section id="body">
-        <section id="intro">
-          <h1>How it Works<canvas class="Juice heading"></h1>
-          <p>Unlike other JS animators, Juice maximizes on the concept of relative time. Speed is determined by how far each object has to move and how much time it has to get there. This makes frames consistent at both high and low FPS. Motion Paths and Trailing Effects all utilize this relative time to determine how long it is in relation to the overall animation.</p>
-          <p>To improve performance, Juice also focuses all calculations on Motion Points. Rather than tracking 50 points on a trail, Juice tracks one and the rest are drawn relative to the first. So point distance vs. speed calculations are unnecessary, and, in fact, inhibit the process.</p>
-          <p>Another major draw to Juice is its cascading properties. If you set a point size on the animation, all points that don't have a size property will use it. You may override those properties as much or as little as you like. This allows every point to share or keep their own as needed.</p>
-          <p>Finally, by default, every animation is cached on its first run. This makes subsequent loops and plays bypass their calculations. However, you have complete control of the cache, even to the point that it may be turned off and on at will.</p>
-        </section>
-        <canvas class="Juice h rule"></canvas>
         <section id="demos">
           <h1>Simple Demos<canvas class="Juice heading"></h1>
           <div>
@@ -83,6 +75,37 @@
             <div><canvas id="demo-11" class="Juice long demo"></canvas></div>
             <div><canvas id="demo-12" class="Juice long demo"></canvas></div>
           </div>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Getting Started<canvas class="Juice heading"></h1>
+          <p>First, if you are using jQuery, make sure to include it. Then simply load the Juice library:
+          <pre><code>
+&lt;script src="path/to/jquery.min.js"&gt;
+&lt;script src="path/to/juice.min.js"&gt;
+          </code></pre>
+          
+          Once included, Juice is made to allow you to get started as quickly as possible. This means that nearly anything may be omitted for defaults and you may make a looping animation with as little code as:
+          <pre><code>
+$('#my-id').Juice({
+    points:[{
+        paths:[{
+            name:'arc'
+        }]
+    }]
+}).play();
+          </code></pre>
+If '#my-id' is a Canvas, it will play right there. If not, Juice will create the Canvas for you. The selector doesn't even have to be a CSS ID. If you make it a class, it will copy the animation in all of the elements that match the selector. Don't forget to include play(), otherwise, the animation won't even appear. From there, you can simply add and change properties until you get what you want.
+</p>
+<p><strong>Important:</strong> Just like any script that acts on a page element, the animation must be placed below the element it is acting on. Often, right above the &lt;/body&gt; is best.</p>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section id="intro">
+          <h1>How it Works<canvas class="Juice heading"></h1>
+          <p>Unlike other JS animators, Juice maximizes on the concept of relative time. Speed is determined by how far each object has to move and how much time it has to get there. This makes frames consistent at both high and low FPS. Motion Paths and Trailing Effects all utilize this relative time to determine how long it is in relation to the overall animation.</p>
+          <p>To improve performance, Juice also focuses all calculations on Motion Points. Rather than tracking 50 points on a trail, Juice tracks one and the rest are drawn relative to the first. So point distance vs. speed calculations are unnecessary, and, in fact, inhibit the process.</p>
+          <p>Another major draw to Juice is its cascading properties. If you set a point size on the animation, all points that don't have a size property will use it. You may override those properties as much or as little as you like. This allows every point to share or keep their own as needed.</p>
+          <p>Finally, by default, every animation is cached on its first run. This makes subsequent loops and plays bypass their calculations. However, you have complete control of the cache, even to the point that it may be turned off and on at will.</p>
         </section>
         <canvas class="Juice h rule"></canvas>
         <section>
