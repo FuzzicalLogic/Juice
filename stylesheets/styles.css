@@ -13,7 +13,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 p, ul, ol, table, pre, dl {
-  margin:0 0 20px;
+  margin:0 0 .75em;
 }
 
 p {
@@ -31,6 +31,8 @@ h1 {
 
 h2 {
   color:#393939;
+  margin-bottom:0;
+  font-size:1.2em;
 }
 
 h3, h4, h5, h6 {
@@ -76,7 +78,7 @@ code, pre {
 }
 
 pre {
-  padding:8px 15px;
+  padding:0 .75em;
   background: #f8f8f8;  
   border-radius:5px;
   border:1px solid #e5e5e5;
@@ -113,9 +115,16 @@ header {
   position:fixed;
 }
 
+header ul {
+  list-style-type:none;
+  list-style-position:inside;
+  padding:.5em;
+  margin:0;
+}
+
 header h1 {
   font-size:2.2em;
-  margin-bottom: .75em;
+  margin-bottom:0;
 }
 header nav ul {
   list-style:none;
@@ -137,7 +146,7 @@ header nav ul {
   box-shadow:inset #fff 0 1px 0, inset rgba(0,0,0,0.03) 0 -1px 0;
 }
 
-header li {
+nav li {
   width:33%;
   float:left;
   border-right:1px solid #d2d2d2;
@@ -145,7 +154,7 @@ header li {
   vertical-align:middle;
 }
 
-header ul a {
+nav ul a {
   width:100%;
   line-height:1;
   font-size:.85em;
@@ -162,12 +171,12 @@ strong {
   font-weight:700;
 }
 
-header ul li + li {
+nav ul li + li {
   width:88px;
   border-left:1px solid #fff;
 }
 
-header ul li + li + li {
+nav ul li + li + li {
   border-right:none;
   width:89px;
 }
@@ -226,6 +235,10 @@ section#body > .Juice {
   display: block;
 }
 
+header .Juice.h.rule {
+width:100%;
+height:1px;
+}
 section#body h1 {
   font-size: 1.2em;
   background-color: #333333;

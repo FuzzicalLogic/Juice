@@ -23,70 +23,87 @@
     <div class="wrapper">
       <header>
         <h1>Juice</h1>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
         <p>Juice is the simplest and most versatile dynamic animation engine for JavaScript and jQuery Plugin support. Make animations that fly in seconds. You can even adjust them while they are actively animating.</p>
         <p>Juice can save quite a bit of bandwidth transfer, and the processing is light. At <a href="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js">&lt; 7k minified</a>, it can offer much more than any standard animated GIF preloader.</p>
 
-        <p class="view"><a href="https://github.com/FuzzicalLogic/Juice">View the Project on GitHub <small>FuzzicalLogic/Juice</small></a></p>
+<nav>
+          <ul>
+            <li class="fork"><a href="https://github.com/FuzzicalLogic/Juice">View On GitHub</a></li>
+            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/zipball/master">ZIP</a></li>
+            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/tarball/master">TAR</a></li>
+          </ul>
+</nav>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+
+      <div>
+        <h2 id="Requirements" name="Requirements">Requirements</h2>
+        <ul>
+          <li>HTML5 Canvas Support <strong>or</strong> HTML5shiv <em>(<strong>Note:</strong> does not require HTML5 doctype)</em></li>
+        </ul>
+      </div>
+
+        
+
         <nav>
           <ul>
             <li>View Readme</li>
             <li>Change Log</li>
             <li>Road Map</li>
           </ul>
-          <ul>
-            <li class="fork"><a href="https://github.com/FuzzicalLogic/Juice">View On GitHub</a></li>
-            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/zipball/master">ZIP</a></li>
-            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/tarball/master">TAR</a></li>
-          </ul>
         </nav>
       </header>
       <section id="body">
         <section id="demos">
           <h1>Simple Demos<canvas class="Juice heading"></h1>
+<p>To get you familiar with how dynamic Juice is, these first 9 demos all use the same animation and progressively enhance it. Put your mouse over each one to see what was done.</p>
           <div>
-<div id="demo-1" class="demo"><canvas class="frame"></canvas>
-            <canvas class="Juice demo" title="Using a simple arc. (only size is declared)"></canvas>
-</div>
-<div id="demo-2" class="demo"><canvas class="frame"></canvas>
-            <canvas class="Juice demo" title="Same arc. Increased Animation length, Trail length, and the radius."></canvas>
-</div>
-<div id="demo-3" class="demo"><canvas class="frame"></canvas>
-            <canvas class="Juice demo" title="Same arc. Added trail effects and lowered FPS."></canvas>
-</div>
-<div id="demo-4" class="demo"><canvas class="frame"></canvas>
+<div id="demo-1" class="demo"><canvas class="frame" title="Using a simple arc."></canvas>
             <canvas class="Juice demo"></canvas>
 </div>
-<div id="demo-5" class="demo"><canvas class="frame"></canvas>
-            <canvas class="Juice demo" title="Using onLoop to change FPS and Trail size."></canvas>
-</div>
-<div id="demo-6" class="demo"><canvas class="frame"></canvas>
+<div id="demo-2" class="demo"><canvas class="frame" title="Next:Change to 'round' points."></canvas>
             <canvas class="Juice demo"></canvas>
 </div>
-<div id="demo-7" class="demo"><canvas class="frame"></canvas>
+<div id="demo-3" class="demo"><canvas class="frame" title="Lengthen the Trail and reduce the number of following points."></canvas>
             <canvas class="Juice demo"></canvas>
 </div>
-<div id="demo-8" class="demo"><canvas class="frame"></canvas>
+<div id="demo-4" class="demo"><canvas class="frame" title="Slow the animation by increasing the length."></canvas>
             <canvas class="Juice demo"></canvas>
 </div>
-<div id="demo-9" class="demo"><canvas class="frame"></canvas>
+<div id="demo-5" class="demo"><canvas class="frame" title="Throttle the FPS to make the points appear stationary."></canvas>
             <canvas class="Juice demo"></canvas>
 </div>
+<div id="demo-6" class="demo"><canvas class="frame" title="Turn off trail fading, and add trail transforming."></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<div id="demo-7" class="demo"><canvas class="frame" title="Use an onLoop event to change color. Turn off caching."></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<div id="demo-8" class="demo"><canvas class="frame" title="Improve the onLoop event to increase the trail size and the FPS to match."></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<div id="demo-9" class="demo"><canvas class="frame" title="Set large width, height and radius and use CSS to resize animation."></canvas>
+            <canvas class="Juice demo"></canvas>
+</div>
+<p>Now that you are familiar with how Juice works, here are a few simple lines to play with. Each of these utilizes a slightly different technique.</p>
             <div><canvas id="demo-10" class="Juice long demo" title="2 Points on separate Line Paths"></canvas></div>
             <div><canvas id="demo-11" class="Juice long demo"></canvas></div>
             <div><canvas id="demo-12" class="Juice long demo"></canvas></div>
+<p>At this point, take notice of the dividers, rules, frames, bullets and other animations on the page. Each of these is a dynamic Juice animation. This page houses over 30 different animations with different sizes, points, paths, speeds and fps <em><strong>all for less than 7k!</strong></em></p>
           </div>
         </section>
-        <canvas class="Juice h rule"></canvas>
-        <section>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+        <section id="Getting-Started" name="Getting-Started">
           <h1>Getting Started<canvas class="Juice heading"></h1>
-          <p>First, if you are using jQuery (necessary at the moment), make sure to include it. Then simply load the Juice library:
+          <p>First, if you are using jQuery (necessary at the moment), make sure to include it. Then simply load the Juice library:</p>
           <pre><code>
 &lt;script src="path/to/jquery.min.js"&gt;
 &lt;script src="path/to/juice.min.js"&gt;
           </code></pre>
           
-          Once included, Juice is made to allow you to get started as quickly as possible. This means that nearly anything may be omitted for defaults and you may make a looping animation with as little code as:
+          <p>Once included, Juice is made to allow you to get started as quickly as possible. This means that nearly anything may be omitted for defaults and you may make a looping animation with as little code as:</p>
           <pre><code>
+&lt;script&gt;
 $('#my-id').Juice({
     points:[{
         paths:[{
@@ -94,21 +111,22 @@ $('#my-id').Juice({
         }]
     }]
 }).play();
+&lt;/script&gt;
           </code></pre>
-If '#my-id' is a Canvas, it will play right there. If not, Juice will create the Canvas for you. The selector doesn't even have to be a CSS ID. If you make it a class, it will copy the animation in all of the elements that match the selector. Don't forget to include play(), otherwise, the animation won't even appear. From there, you can simply add and change properties until you get what you want.
+<p>If '#my-id' is a Canvas, it will play right there. If not, Juice will create the Canvas for you. The selector doesn't even have to be a CSS ID. If you make it a class, it will copy the animation in all of the elements that match the selector. Don't forget to include play(), otherwise, the animation won't even appear. From there, you can simply add and change <a href="#Documentation">properties</a> until you get what you want.
 </p>
 <p><strong>Important:</strong> Just like any script that acts on a page element, the animation must be placed below the element it is acting on. Often, right above the &lt;/body&gt; is best.</p>
         </section>
-        <canvas class="Juice h rule"></canvas>
-        <section id="intro">
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+        <section id="How-it-Works" name="How-it-Works">
           <h1>How it Works<canvas class="Juice heading"></h1>
           <p>Unlike other JS animators, Juice maximizes on the concept of relative time. Speed is determined by how far each object has to move and how much time it has to get there. This makes frames consistent at both high and low FPS. Motion Paths and Trailing Effects all utilize this relative time to determine how long it is in relation to the overall animation.</p>
           <p>To improve performance, Juice also focuses all calculations on Motion Points. Rather than tracking 50 points on a trail, Juice tracks one and the rest are drawn relative to the first. So point distance vs. speed calculations are unnecessary, and, in fact, inhibit the process.</p>
           <p>Another major draw to Juice is its cascading properties. If you set a point size on the animation, all points that don't have a size property will use it. You may override those properties as much or as little as you like. This allows every point to share or keep their own as needed.</p>
           <p>Finally, by default, every animation is cached on its first run. This makes subsequent loops and plays bypass their calculations. However, you have complete control of the cache, even to the point that it may be turned off and on at will.</p>
         </section>
-        <canvas class="Juice h rule"></canvas>
-        <section>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+        <section id="Documentation" name="Documentation">
           <h1>Documentation<canvas class="Juice heading"></h1>
           <p>Animations in Juice are entirely dynamic. At any point in time, you may change any single property of any object used by the animation. Additionally, Juice allows you to respond to specific events. These give access to the animation's properties, even allowing conditional behavior.</p>
           <section>
@@ -128,7 +146,7 @@ If '#my-id' is a Canvas, it will play right there. If not, Juice will create the
             </ul>
           </section>
         </section>
-        <canvas class="Juice h rule"></canvas>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
         <aside id="donate">
           <h1>Donations<canvas class="Juice heading"></h1>
           <form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float:right;">
@@ -138,7 +156,7 @@ If '#my-id' is a Canvas, it will play right there. If not, Juice will create the
             <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
             <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
           </form>
-          <p>Donations will be used to fund the further development for this library, additional research for compatibility and compatibility techniques, and begin other specifically related projects. Such additional projects will be explicitly mentioned here.</p>
+          <p>Donations will be used to fund the further development for this library, additional research for compatibility and compatibility techniques, and begin other specifically related projects.</p>
         </aside>
       </section>
       <footer>
@@ -153,15 +171,15 @@ If '#my-id' is a Canvas, it will play right there. If not, Juice will create the
 
 <!-- Simple Arc Demos -->
     <script>
-      $('#demo-1 .demo').Juice({size:5,points:[{type:'round',paths:{name:'arc'}}]}).play();
-      $('#demo-2 .demo').Juice({length:2000,size:5,points:[{type:'round',paths:{name:'arc',r:15}}],trail:{length:500,points:7}}).play();
-      $('#demo-4 .demo').Juice({alpha:1,length:2000,fps:8,size:10,points:[{type:'round',paths:{name:'arc',r:15},trail:{length:2000,points:15,fade:true,transform:true}}]}).play();
-      $('#demo-8 .demo').Juice({w:75,h:75,cache:false,fps: 8,size: 12,color:'#0000BB',points: [{type: 'round',paths:{length: 1000,name: 'arc',start: 270,end: -90}}],onLoop: function (n) {var f,s = this.point(0).trail().size();this.point(0).trail().size((f = this.fps()) < 40 ? s + 4 : 7).juice().color(n % 2 ? '#BB0000' : '#0000BB').fps(f < 40 ? f + 4 : 8);},trail: {length: 1000,points: 7,transform: true,fade: false}}).play();
-      $('#demo-9 .demo').Juice({w:25,h:25,size:3,points:[{type:'round',paths:[
-{name:'line',x1:1,x2:24,y1:24,y2:24},
-{name:'line',x1:24,x2:12,y1:24,y2:1},
-{name:'line',x1:12,x2:1,y1:1,y2:24}
-]}],trail:{length:200,points:20,transform:true,fade:false}}).play();
+      $('#demo-1 .demo').Juice({points:[{paths:[{name:'arc'}]}]}).play();
+      $('#demo-2 .demo').Juice({points:[{size:8,type:'round',paths:[{name:'arc'}]}]}).play();
+      $('#demo-3 .demo').Juice({points:[{size:8,type:'round',paths:[{name:'arc'}]}],trail:{length:1000,points:8}}).play();
+      $('#demo-4 .demo').Juice({length:2000,points:[{size:8,type:'round',paths:[{name:'arc'}]}],trail:{length:2000,points:7}}).play();
+      $('#demo-5 .demo').Juice({fps:4,length:2000,points:[{size:8,type:'round',paths:[{name:'arc'}]}],trail:{length:2000,points:7}}).play();
+      $('#demo-6 .demo').Juice({fps:4,length:2000,points:[{size:8,type:'round',paths:[{name:'arc'}]}],trail:{length:2000,points:7,fade:false,transform:true}}).play();
+      $('#demo-7 .demo').Juice({cache:false,fps:4,length:2000,points:[{size:8,type:'round',paths:[{name:'arc'}]}],trail:{length:2000,points:7,fade:false,transform:true},onLoop: function (n) {this.color(n % 2 ? '#BB0000' : '#0000BB');}}).play();
+      $('#demo-8 .demo').Juice({cache:false,fps:4,length:2000,points:[{size:8,type:'round',paths:[{name:'arc'}]}],trail:{length:2000,points:7,fade:false,transform:true},onLoop: function (n) {var f,s = this.point(0).trail().size();this.point(0).trail().size((f = this.fps()) < 14 ? s + 4 : 7).juice().color(n % 2 ? '#BB0000' : '#0000BB').fps(f < 14 ? f + 2 : 4);}}).play();
+      $('#demo-9 .demo').Juice({w:75,h:75,length:2000,cache:false,fps: 4,size: 12,color:'#0000BB',points: [{type: 'round',paths:{name: 'arc',r:25}}],onLoop: function (n) {var f,s = this.point(0).trail().size();this.point(0).trail().size((f = this.fps()) < 14 ? s + 4 : 7).juice().color(n % 2 ? '#BB0000' : '#0000BB').fps(f < 14 ? f + 2 : 4);},trail: {length: 2000,points: 7,transform: true}}).play();
     </script>
 <!-- Simple Line Demos -->
     <script>
