@@ -6,11 +6,9 @@
     <title>Juice by FuzzicalLogic</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
     <script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js"></script>
-    <script src="javascripts/respond.js"></script>
     <!--[if lt IE 9]>
       <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
@@ -192,13 +190,13 @@ $('#my-id').Juice({
 $('#body').Juice({fps:15,length:10000,w:6,h:100,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:2,y2:98,x1:3,x2:3},{name:'line',y1:98,y2:2,x1:3,x2:3}]},{paths:[{name:'line',y1:98,y2:2,x1:3,x2:3},{name:'line',y1:2,y2:98,x1:3,x2:3}]}],trail:{length:5000,points:50,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
 
 /* Horizontal Rules */
-$('.h.rule').Juice({fps:15,length:10000,w:100,h:6,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:3,y2:3,x1:2,x2:98},{name:'line',y1:3,y2:3,x1:98,x2:2}]},{paths:[{name:'line',y1:3,y2:3,x1:98,x2:2},{name:'line',y1:3,y2:3,x1:2,x2:98}]}],trail:{length:5000,points:50,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
+$('.h.rule').Juice({fps:15,length:10000,w:50,h:6,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:3,y2:3,x1:2,x2:48},{name:'line',y1:3,y2:3,x1:48,x2:2}]},{paths:[{name:'line',y1:3,y2:3,x1:48,x2:2},{name:'line',y1:3,y2:3,x1:2,x2:48}]}],trail:{length:3500,points:20,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
 
 /* Bullets for List Items */
 $('#body section section li').Juice({fps:15,length: 4000,w: 25,h: 25,size:2,color:'#000000',points: [{type: 'rect',paths: [{name: 'line',length: 400,}, {name: 'arc',start: 90,end: -450}]}, {type: 'rect',paths: [{name: 'arc',start: -90,end: 450}, {name: 'line',length: 400,x1: 23,x2: 2}]}, {type: 'rect',paths: [{name: 'line',length: 400,x1: 23,x2: 2}, {name: 'arc',start: -90,end: -630}]}, {type: 'rect',paths: [{name: 'arc',start: 90,end: 630}, {name: 'line',length: 400,}]}],trail: {length: 500,points: 10,fade: false}}).play();
 
 /* Header Animation */
-$('.Juice.heading').Juice({fps:30,w:100,h:8,length:2500,size:4,color:'#ffffff',points:[{paths:[{name:'line',x1:4,x2:96,y1:4,y2:4}]}]}).play();
+$('.Juice.heading').Juice({fps:26,w:100,h:8,length:2500,size:4,color:'#ffffff',points:[{paths:[{name:'line',x1:4,x2:96,y1:4,y2:4}]}]}).play();
 
 /* Frames for Demos */
 $('.frame').Juice({fps:20,w:50,h:50,length:5000,size:1,alpha:.6,points:[{type:'rect',paths:[{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49},{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1}]},{type:'rect',paths:[{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1},{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49}]}],trail:{length:3500,points:50, fade:true}}).play();
