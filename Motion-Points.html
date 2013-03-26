@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Juice by FuzzicalLogic</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Juice</h1>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+        <p>Juice is the simplest and most versatile dynamic animation engine for JavaScript and jQuery Plugin support. Make animations that fly in seconds. You can even adjust them while they are actively animating.</p>
+        <p>Juice can save quite a bit of bandwidth transfer, and the processing is light. At <a href="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js">&lt; 7k minified</a>, it can offer much more than any standard animated GIF preloader.</p>
+
+<nav>
+          <ul>
+            <li class="fork"><a href="https://github.com/FuzzicalLogic/Juice">View On GitHub</a></li>
+            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/zipball/master">ZIP</a></li>
+            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/tarball/master">TAR</a></li>
+          </ul>
+</nav>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+
+      <div>
+        <h2 id="Requirements" name="Requirements">Requirements</h2>
+        <ul>
+          <li>Browser with Canvas Support <strong>or</strong> HTML5shiv <em>(<strong>Note:</strong> does not require HTML5 doctype)</em></li>
+        </ul>
+      </div>
+
+        
+
+        <nav>
+          <ul>
+            <li>View Readme</li>
+            <li>Change Log</li>
+            <li>Road Map</li>
+          </ul>
+        </nav>
+      </header>
+      <section id="body">
+        <h1>Motion Points<canvas class="Juice heading"></h1>
+        <p>In Juice, a Motion Point is not an (X,Y) coordinate. A Motion Point is a point in relative time and how that point is represented at any such point. This means that a Point does not have a specific coordinate, only that if given one it will drawing itself appropriately. While it may seem counter-intuitive, since a point doesn't actually "know" where it is, all X,Y positioning is handled by the <a href="Motion-Paths">Paths</a> of that point.</p>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Object Properties<canvas class="Juice heading"></h1>
+<pre><code>{</code>
+    <code>type:string,</code>                /*<em>(default:'rect')</em>*/
+    <code>color:string,</code>               /*<em>Cascades from <a href="Animations.html">Animation</a></em>*/
+    <code>alpha:number,</code>               /*<em>Cascades from <a href="Animations.html">Animation</a></em>*/
+    <code>size:number,</code>                /*<em>Cascades from <a href="Animations.html">Animation</a></em>*/
+    <code>paths:array or object,</code>      /*<em>see <a href="Motion-Paths.html">Motion Paths</a></em>*/
+    <code>trail:object,</code>               /*<em>see <a href="Trail-Effects.html">Trail Effects</a>.</em>*/
+                                /*<em>Cascades from <a href="Animations.html">Animation</a></em>*/
+<code>},</code></pre>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Juice Cascading<canvas class="Juice heading"></h1>
+          <p>Certain Point Properties (size, color, alpha, and trail)cascade down from default values to Animation Properties to individual Motion Point Properties. This means that if a property isn't set, Juice will natively "look up" the chain to find the appropriate value to use. Below is an example animation that demonstrates how a cascade works.</p>
+          <pre><code>{   length:2000,
+    color:'#BBOOBB',
+    alpha:.7,
+    points:[
+        {   type:'round',
+            size:3,
+            alpha:1,
+            paths:[{
+                name:'arc'
+            }],
+        },
+        {   type:'rect',
+            color:'#00BB00',
+            paths:[{
+                name:'line'
+            }]
+        }
+    ],
+    trail: {
+        length:500,
+        transform:true,
+    }
+}</code></pre>
+          <p>In the above example, the first Motion Point will have a size of 3, an alpha of 1, but will use the color and trail of the animation itself. The second point, in contrast, will use the default size, have a color of '#00BB00', but use the alpha and trail of the animation. Paths is not cascaded (at this time).</p>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Javascript Methods<canvas class="Juice heading"></h1>
+          <p>Most of the Javascript methods serve as both getters and setters. To set the value, use it as an argument. To get the value, simply omit any argument. For example, <code>size()</code> will get the current size, while <code>size(10)</code> will set the size to '10' pixels.</p>
+          <ul>
+            <li><code>juice()</code><p>Shifts the focus of the command chain to the <a href="Animations.html">Juice Animation</a>.</p></li>
+            <li><code>size(number)</code><p>Gets or Sets the size of the Motion Point. In the Juice standard, this number should be in pixels. <a href="#Custom-Points">Custom Points</a> may utilize this differently.</p></li>
+            <li><code>color(color string)</code><p>Gets or Sets the color of the Motion Point. Color String is of the form '#RRGGBB'.</p></li>
+            <li><code>alpha(number)</code><p>Gets or Sets the alpha transparency of the Motion Point. This number may be either a floating point value from 0 to 1, or a percentage value from 0 to 100.</p></li>
+            <li><code>canFade()</code><p>Convenience method for determining whether the Motion Point's alpha is modified by the <a href="Trail-Effects.html">Trail</a>.</p></li>
+            <li><code>canResize()</code><p>Convenience method for determining whether the Motion Point is transformed by the <a href="Trail-Effects.html">Trail</a>.</p></li>
+            <li><code>paths(array)</code><p>Gets or Sets the <a href="Motion-Paths.html">Motion Paths</a> for this Motion Point to the array of Motion Path objects sent. To adjust a single Motion Path, use <code>path()</code>.</p></li>
+            <li><code>path(number, object)</code><p>Gets or Sets the Motion Path at the number provided to the <a href="Motion-Paths.html">Motion Path Object</a> provided. The number argument is required whether using as a Getter or Setter. When used as a Getter, shifts the focus of the command chain to the returned Path.</p></li>
+            <li><code>trail(object)</code><p>Gets or Sets the <a href="Trail-Effects.html">Trail</a> for this Motion Point. If used as a Getter, shifts the focus of the command chain to the returned Trail.</p></li>
+          </ul>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Javascript Chaining<canvas class="Juice heading"></h1>
+          <p>canResize() and canFade() may not be used as Setters, and will always end a chain. However, when used as setters, all of the rest of these methods may be chained. Getters may not be chained. The return object for setters will always be the same Trail Object that was just set.</p>
+          <p> For example: <code>points(0).color('#000000').alpha(30);</code> will set both the color and alpha <em>(to .3)</em> of the first point.</p>
+          <p>A more complex example: <code>point(0).size(10).trail().length(50).juice().refresh();</code> will change the size of the point, set the length of its trail, return to the Juice Animation and refresh the cache in one step.
+        </section>
+      </section>
+      <footer>
+        <div>
+          <h1>Support or Contact</h1>
+          <p>This project is maintained by <a href="https://github.com/FuzzicalLogic">FuzzicalLogic</a></p>
+          <p>Issues are registered directly on the Repository on GitHub in <a href="https://github.com/FuzzicalLogic/Juice/issues">Issues</a>. </p>
+        </div>
+      </footer>
+    </div>
+    
+<!-- Page Decorations -->
+    <script>
+/* Vertical Page Divider */
+$('#body').Juice({fps:15,length:10000,w:6,h:100,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:2,y2:98,x1:3,x2:3},{name:'line',y1:98,y2:2,x1:3,x2:3}]},{paths:[{name:'line',y1:98,y2:2,x1:3,x2:3},{name:'line',y1:2,y2:98,x1:3,x2:3}]}],trail:{length:5000,points:50,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
+
+/* Horizontal Rules */
+$('.h.rule').Juice({fps:15,length:10000,w:50,h:6,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:3,y2:3,x1:2,x2:48},{name:'line',y1:3,y2:3,x1:48,x2:2}]},{paths:[{name:'line',y1:3,y2:3,x1:48,x2:2},{name:'line',y1:3,y2:3,x1:2,x2:48}]}],trail:{length:3500,points:20,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
+
+/* Bullets for List Items */
+$('#body section section li').Juice({fps:15,length: 4000,w: 25,h: 25,size:2,color:'#000000',points: [{type: 'rect',paths: [{name: 'line',length: 400,}, {name: 'arc',start: 90,end: -450}]}, {type: 'rect',paths: [{name: 'arc',start: -90,end: 450}, {name: 'line',length: 400,x1: 23,x2: 2}]}, {type: 'rect',paths: [{name: 'line',length: 400,x1: 23,x2: 2}, {name: 'arc',start: -90,end: -630}]}, {type: 'rect',paths: [{name: 'arc',start: 90,end: 630}, {name: 'line',length: 400,}]}],trail: {length: 500,points: 10,fade: false}}).play();
+
+/* Header Animation */
+$('.Juice.heading').Juice({fps:26,w:100,h:8,length:2500,size:4,color:'#ffffff',points:[{paths:[{name:'line',x1:4,x2:96,y1:4,y2:4}]}]}).play();
+
+/* Frames for Demos */
+$('.frame').Juice({fps:20,w:50,h:50,length:5000,size:1,alpha:.6,points:[{type:'rect',paths:[{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49},{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1}]},{type:'rect',paths:[{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1},{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49}]}],trail:{length:3500,points:50, fade:true}}).play();
+    </script>
+
+  </body>
+</html>
