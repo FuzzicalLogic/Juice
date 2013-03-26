@@ -1,0 +1,163 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Juice by FuzzicalLogic</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <!--[if lt IE 8]>
+    <link rel="stylesheet" href="stylesheets/ie.css">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Juice</h1>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+        <p>Juice is the simplest and most versatile dynamic JavaScript animation engine for the HTML Canvas (with jQuery Plugin support). Make animations that fly in seconds. You can even adjust them while they are actively animating.</p>
+        <p>Juice can save quite a bit of bandwidth transfer, and the processing is light. At <a href="https://raw.github.com/FuzzicalLogic/Juice/master/src/juice.min.js">&lt; 7k minified</a>, it can offer much more than any standard animated GIF image accent.</p>
+
+<nav>
+          <ul>
+            <li class="fork"><a href="https://github.com/FuzzicalLogic/Juice">View On GitHub</a></li>
+            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/zipball/master">ZIP</a></li>
+            <li class="downloads"><a href="https://github.com/FuzzicalLogic/Juice/tarball/master">TAR</a></li>
+          </ul>
+</nav>
+        <canvas class="Juice h rule" title="These horizontal rules are actually only 100px wide. Gotta love CSS!"></canvas>
+
+      <div>
+        <h2 id="Requirements" name="Requirements">Requirements</h2>
+        <ul>
+          <li>Browser with Canvas Support <strong>or</strong> HTML5shiv <em>(<strong>Note:</strong> <a href="Why-HTML-Canvas.html">does not require HTML5 doctype</a>)</em></li>
+        </ul>
+      </div>
+
+        
+
+        <nav>
+          <ul>
+            <li>View Readme</li>
+            <li>Change Log</li>
+            <li>Road Map</li>
+          </ul>
+        </nav>
+      </header>
+      <section id="body">
+        <h1>Animations<canvas class="Juice heading"></h1>
+        <p>The Animation is essentially a glorified time-keeper for all of its organizational elements. Its properties modify when and how each child object will render in relation to each other. It also provides the primary interface by which the developer will interact with it.</p>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Object Properties<canvas class="Juice heading"></h1>
+          <p>Nearly all Animation Object Properties are optional and will defer to defaults when not explicitly set. At least one Motion Point must be included in the Animation for it to work correctly. Use the syntax below to build your own animations</p>
+<pre><code>{</code>
+    <code>cache:boolean</code>               /*<em>(default:true)</em>*/
+    <code>length:time,</code>                /*<em>(default:1000)</em>*/
+    <code>fps:number,</code>                 /*<em>(default:30)</em>*/
+    <code>w:number,</code>                   /*<em>(default:50)</em>*/
+    <code>h:number,</code>                   /*<em>(default:50)</em>*/
+    <code>size:number,</code>                /*<em>(default:5)</em>*/
+    <code>color:color string,</code>         /*<em>(default:'#000000')</em>*/
+    <code>alpha:number,</code>               /*<em>(default:1)</em>*/
+    <code>points:[</code>                
+        <code>{ point object },</code>       /*<em>See <a href="Motion-Points.html">Motion Points</a></em>*/
+    <code>],</code>
+    <code>trail: {</code>
+        <code>trail object</code>            /*<em>See <a href="Trail-Effects.html">Trail Effects</a></em>*/
+    <code>},</code>
+<code>}</code></pre>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Juice Cascading<canvas class="Juice heading"></h1>
+          <p>While most of the Animation's properties will revert to defaults if omitted, a few special properties will cascade down to their appropriate objects if they are not defined. These are size, color, alpha, and trail. The example below demonstrates how cascading properties work.</p>
+          <pre><code>{   length:2000,
+    points:[
+        {   type:'round',
+            paths:[{
+                name:'arc'
+            }],
+            trail: {
+                length:100
+            }
+        },
+        {   type:'rect',
+            paths:[{
+                name:'line'
+            }]
+        }
+    ],
+    trail: {
+        length:500,
+        transform:true,
+    }
+}</code></pre>
+          <p>In the above example, the first Motion Point will have a trail length 100, be transformed, have the default number of points and use the default fader. The second point, in contrast, will have a length of 500, be transformed and use the same defaults for number of points and fading.</p>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Javascript Methods<canvas class="Juice heading"></h1>
+          <p>In Javascript, you must have an active reference to a Juice Animation before these methods will work. Juice Animations will always have a Trail Object which is retrieved with <code>trail()</code>. If a Motion Point was created with its own <code>trail: {}</code>, it will also have a Trail Object (retrievable via <code>trail()</code>). If it was not, <code>trail()</code> will return the Trail Object of the Juice Animation.</p>
+          <p>Unless stated otherwise, Javascript methods serve as both getters and setters. To set the value, use it as an argument. To get the value, simply omit any argument. For example, <code>length()</code> will get the current length, while <code>length(500)</code> will set the length to '500'.</p>
+          <ul>
+            <li><code>animation.play();</code><p>Plays the animation.</p></li>
+            <li><code>animation.stop();</code><p>Stops the animation.</p></li>
+            <li><code>animation.refresh();</code><p>Empties the animation cache.</p></li>
+            <li><code>animation.context()</code><p>Gets the Context2D of the Canvas that the animation is/will be playing on.</p>
+            <li><code>animation.fps(number);</code><p>Gets or Sets the number of frames per second to render at. Does not affect the speed of the animation, merely how often the screen is updated.</p></li>
+            <li><code>animation.length(number);</code><p>Gets or Sets the length of the Juice Animation in milliseconds. This is the property to modify if you want to speed or slow the animation.</p></li>
+            <li><code>animation.width(number);</code><p>Gets or Sets the width attribute of the Canvas (before modified by CSS).</p></li>
+            <li><code>animation.height(number);</code><p>Gets or Sets the height attribute of the Canvas (before modified by CSS).</p></li>
+            <li><code>animation.points(array);</code><p>Gets or Sets the entire <a href="Motion-Points.html">Motion Points</a> array in the Juice Animation. To modify an individual point, use the <code>point()</code> method.</p></li>
+            <li><code>animation.point(number, object);</code><p>Gets or Sets the Motion Point indicated by the number argument. The number argument is required.</p></li>
+            <li><code>animation.size(number);</code><p>Gets or Sets the default size of Motion Points rendered on the Canvas. This is a cascading property and may be overridden by the value of each individual Motion Point.</p></li>
+            <li><code>animation.color(color string);</code><p>Gets or Sets the default color of Motion Points rendered on the Canvas. This is a cascading property and may be overridden by the value of each individual Motion Point.</p></li>
+            <li><code>animation.alpha(number);</code><p>Gets or Sets the default alpha transparency of points rendered on the canvas. This is a cascading property and may be overridden by the value of each individal Motion Point.</p></li>
+            <li><code>animation.trail(object);</code><p>Gets or Sets the default <a href="Trail-Effects.html">Trail Effect</a> of Motion Points rendered on the Canvas. This is a cascading property and may be overridden by the value of each individual Motion Point.</p></li>
+          </ul>
+        </section>
+        <canvas class="Juice h rule"></canvas>
+        <section>
+          <h1>Javascript Chaining<canvas class="Juice heading"></h1>
+          <p>When used as setters, all of these methods may be chained. Getters may not be chained. The return object for setters will always be the same Animation Object that was just set.</p>
+          <p> For example: <code>size(4).length(2000).refresh();</code> will set both the length of the animation to 2 seconds and the default size of Motion Points to 4.</p>
+          <p>A more complex example:<code>alpha(.5).trail().length(500).juice().refresh();</code> will set the default alpha, get the default trail and sets its length, return to the Juice Animation and refresh the cache in one step.
+        </section>
+      </section>
+      <footer>
+        <div>
+          <h1>Support or Contact</h1>
+          <p>This project is maintained by <a href="https://github.com/FuzzicalLogic">FuzzicalLogic</a></p>
+          <p>Issues are registered directly on the Repository on GitHub in <a href="https://github.com/FuzzicalLogic/Juice/issues">Issues</a>. </p>
+        </div>
+      </footer>
+    </div>
+    
+<!-- Page Decorations -->
+    <script>
+/* Vertical Page Divider */
+$('#body').Juice({fps:15,length:10000,w:6,h:100,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:2,y2:98,x1:3,x2:3},{name:'line',y1:98,y2:2,x1:3,x2:3}]},{paths:[{name:'line',y1:98,y2:2,x1:3,x2:3},{name:'line',y1:2,y2:98,x1:3,x2:3}]}],trail:{length:5000,points:50,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
+
+/* Horizontal Rules */
+$('.h.rule').Juice({fps:15,length:10000,w:50,h:6,size:2,color:'#BBBBBB',points:[{paths:[{name:'line',y1:3,y2:3,x1:2,x2:48},{name:'line',y1:3,y2:3,x1:48,x2:2}]},{paths:[{name:'line',y1:3,y2:3,x1:48,x2:2},{name:'line',y1:3,y2:3,x1:2,x2:48}]}],trail:{length:3500,points:20,transform:true},onLoop:function(){var _=this;_.stop();setTimeout(function(){_.play();},2000)}}).play();
+
+/* Bullets for List Items */
+$('#body section section li').Juice({fps:15,length: 4000,w: 25,h: 25,size:2,color:'#000000',points: [{type: 'rect',paths: [{name: 'line',length: 400,}, {name: 'arc',start: 90,end: -450}]}, {type: 'rect',paths: [{name: 'arc',start: -90,end: 450}, {name: 'line',length: 400,x1: 23,x2: 2}]}, {type: 'rect',paths: [{name: 'line',length: 400,x1: 23,x2: 2}, {name: 'arc',start: -90,end: -630}]}, {type: 'rect',paths: [{name: 'arc',start: 90,end: 630}, {name: 'line',length: 400,}]}],trail: {length: 500,points: 10,fade: false}}).play();
+
+/* Header Animation */
+$('.Juice.heading').Juice({fps:26,w:100,h:8,length:2500,size:4,color:'#ffffff',points:[{paths:[{name:'line',x1:4,x2:96,y1:4,y2:4}]}]}).play();
+
+/* Frames for Demos */
+$('.frame').Juice({fps:20,w:50,h:50,length:5000,size:1,alpha:.6,points:[{type:'rect',paths:[{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49},{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1}]},{type:'rect',paths:[{name:'line',x1:49,y1:49,x2:1,y2:49},{name:'line',x1:1,y1:49,x2:1,y2:1},{name:'line',x1:1,y1:1,x2:49,y2:1},{name:'line',x1:49,y1:1,x2:49,y2:49}]}],trail:{length:3500,points:50, fade:true}}).play();
+    </script>
+
+  </body>
+</html>
